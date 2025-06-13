@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a tool argument.
+ * 标记工具参数。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -34,12 +34,12 @@ import java.lang.annotation.Target;
 public @interface ToolParam {
 
 	/**
-	 * Whether the tool argument is required.
+	 * 工具参数是否为必需。
 	 */
 	boolean required() default true;
 
 	/**
-	 * The description of the tool argument.
+	 * 工具参数的描述。
 	 */
 	String description() default "";
 

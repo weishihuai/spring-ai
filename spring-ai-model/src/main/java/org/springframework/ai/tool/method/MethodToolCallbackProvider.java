@@ -16,18 +16,8 @@
 
 package org.springframework.ai.tool.method;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.annotation.Tool;
@@ -39,9 +29,19 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
- * A {@link ToolCallbackProvider} that builds {@link ToolCallback} instances from
- * {@link Tool}-annotated methods.
+ * {@link ToolCallbackProvider}从{@link Tool}注释的方法中构建{@link ToolCallback}实例。
+ * <p>
+ * 获取MethodToolCallback实例: 从给定的 Bean 对象中提取带有 @Tool 注解的方法，并将其封装为 ToolCallback，供后续调用使用。
  *
  * @author Thomas Vitale
  * @author Christian Tzolov
@@ -51,6 +51,9 @@ public final class MethodToolCallbackProvider implements ToolCallbackProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(MethodToolCallbackProvider.class);
 
+	/**
+	 * 提供工具方法的对象列表
+	 */
 	private final List<Object> toolObjects;
 
 	private MethodToolCallbackProvider(List<Object> toolObjects) {
@@ -63,6 +66,7 @@ public final class MethodToolCallbackProvider implements ToolCallbackProvider {
 
 	private void assertToolAnnotatedMethodsPresent(List<Object> toolObjects) {
 
+		// 至少包含一个有效的 @Tool 注解方法
 		for (Object toolObject : toolObjects) {
 			List<Method> toolMethods = Stream
 				.of(ReflectionUtils.getDeclaredMethods(
@@ -82,10 +86,13 @@ public final class MethodToolCallbackProvider implements ToolCallbackProvider {
 	public ToolCallback[] getToolCallbacks() {
 		var toolCallbacks = this.toolObjects.stream()
 			.map(toolObject -> Stream
+					// 获取所有工具对象中的 @Tool 方法
 				.of(ReflectionUtils.getDeclaredMethods(
 						AopUtils.isAopProxy(toolObject) ? AopUtils.getTargetClass(toolObject) : toolObject.getClass()))
 				.filter(toolMethod -> toolMethod.isAnnotationPresent(Tool.class))
+					// 方法返回类型是否是函数式接口（Function/Supplier/Consumer），如果是，则忽略该方法
 				.filter(toolMethod -> !isFunctionalType(toolMethod))
+					// 构建MethodToolCallback
 				.map(toolMethod -> MethodToolCallback.builder()
 					.toolDefinition(ToolDefinitions.from(toolMethod))
 					.toolMetadata(ToolMetadata.from(toolMethod))
@@ -97,6 +104,7 @@ public final class MethodToolCallbackProvider implements ToolCallbackProvider {
 			.flatMap(Stream::of)
 			.toArray(ToolCallback[]::new);
 
+		// 校验生成的 ToolCallback 是否存在重复的工具名称。
 		validateToolCallbacks(toolCallbacks);
 
 		return toolCallbacks;

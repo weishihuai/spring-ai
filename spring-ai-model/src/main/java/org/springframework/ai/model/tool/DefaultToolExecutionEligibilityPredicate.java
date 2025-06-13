@@ -20,9 +20,7 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 
 /**
- * Default implementation of {@link ToolExecutionEligibilityPredicate} that checks whether
- * tool execution is enabled in the prompt options and if the chat response contains tool
- * calls.
+ * {@link ToolExecutionEligibilityPredicate}的默认实现，检查提示选项中是否启用了工具执行，以及聊天响应是否包含工具调用。
  *
  * @author Christian Tzolov
  */
@@ -30,6 +28,7 @@ public class DefaultToolExecutionEligibilityPredicate implements ToolExecutionEl
 
 	@Override
 	public boolean test(ChatOptions promptOptions, ChatResponse chatResponse) {
+		// 大模型将需要调用的工具放到List<ToolCall> toolCalls中，如果有，则表示需要调用工具
 		return ToolCallingChatOptions.isInternalToolExecutionEnabled(promptOptions) && chatResponse != null
 				&& chatResponse.hasToolCalls();
 	}

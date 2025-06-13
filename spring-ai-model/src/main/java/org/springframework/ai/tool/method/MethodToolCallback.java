@@ -16,17 +16,9 @@
 
 package org.springframework.ai.tool.method;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
@@ -40,8 +32,15 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.stream.Stream;
+
 /**
- * A {@link ToolCallback} implementation to invoke methods as tools.
+ * {@link ToolCallback}实现调用方法作为工具。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -94,6 +93,13 @@ public final class MethodToolCallback implements ToolCallback {
 		return call(toolInput, null);
 	}
 
+	/**
+	 * 触发方法调用
+	 *
+	 * @param toolInput   工具输入参数
+	 * @param toolContext 工具上下文
+	 * @return 工具输出结果
+	 */
 	@Override
 	public String call(String toolInput, @Nullable ToolContext toolContext) {
 		Assert.hasText(toolInput, "toolInput cannot be null or empty");
@@ -102,16 +108,20 @@ public final class MethodToolCallback implements ToolCallback {
 
 		validateToolContextSupport(toolContext);
 
+		// 将模型处理后的字符串文本，转化为对应的输入模式
 		Map<String, Object> toolArguments = extractToolArguments(toolInput);
 
 		Object[] methodArguments = buildMethodArguments(toolArguments, toolContext);
 
+		// 调用工具的方法 + 输入参数，得到工具的输出结果
 		Object result = callMethod(methodArguments);
 
 		logger.debug("Successful execution of tool: {}", this.toolDefinition.name());
 
+		// 获取工具方法的返回类型
 		Type returnType = this.toolMethod.getGenericReturnType();
 
+		// 将工具的输出结果，转化为指定的返回类型
 		return this.toolCallResultConverter.convert(result, returnType);
 	}
 
@@ -124,6 +134,14 @@ public final class MethodToolCallback implements ToolCallback {
 		}
 	}
 
+	/**
+	 * 从工具输入中提取参数并生成一个映射
+	 * 该方法使用JsonParser类将给定的工具输入字符串解析为一个Map对象
+	 * 这个Map对象随后被用来获取工具执行所需的参数
+	 *
+	 * @param toolInput 工具输入的JSON格式字符串，包含待解析的参数
+	 * @return 一个包含工具参数的Map对象，其中键是参数名，值是参数值
+	 */
 	private Map<String, Object> extractToolArguments(String toolInput) {
 		return JsonParser.fromJson(toolInput, new TypeReference<>() {
 		});
@@ -157,12 +175,14 @@ public final class MethodToolCallback implements ToolCallback {
 
 	@Nullable
 	private Object callMethod(Object[] methodArguments) {
+		// 检查对象或方法是否不具备公共访问权限，如果是，则设置方法可访问
 		if (isObjectNotPublic() || isMethodNotPublic()) {
 			this.toolMethod.setAccessible(true);
 		}
 
 		Object result;
 		try {
+			// 通过反射调用方法并传递参数，获取结果
 			result = this.toolMethod.invoke(this.toolObject, methodArguments);
 		}
 		catch (IllegalAccessException ex) {

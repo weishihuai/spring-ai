@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * A {@link ToolCallback} implementation to invoke functions as tools.
+ * {@link ToolCallback}实现调用函数作为工具。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -98,11 +98,15 @@ public class FunctionToolCallback<I, O> implements ToolCallback {
 
 		logger.debug("Starting execution of tool: {}", this.toolDefinition.name());
 
+		// 模型提取的toolInput为json字符串，转为定义的Request类型
 		I request = JsonParser.fromJson(toolInput, this.toolInputType);
+
+		// 调用工具方法，得到响应结果
 		O response = this.toolFunction.apply(request, toolContext);
 
 		logger.debug("Successful execution of tool: {}", this.toolDefinition.name());
 
+		// 将工具的输出结果，转化为指定的返回类型
 		return this.toolCallResultConverter.convert(response, null);
 	}
 

@@ -23,7 +23,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.tool.definition.ToolDefinition;
 
 /**
- * Service responsible for managing the tool calling process for a chat model.
+ * 负责管理聊天模型的工具调用过程的服务。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -31,12 +31,12 @@ import org.springframework.ai.tool.definition.ToolDefinition;
 public interface ToolCallingManager {
 
 	/**
-	 * Resolve the tool definitions from the model's tool calling options.
+	 * 从模型的工具调用选项中解析工具定义。
 	 */
 	List<ToolDefinition> resolveToolDefinitions(ToolCallingChatOptions chatOptions);
 
 	/**
-	 * Execute the tool calls requested by the model.
+	 * 执行模型所要求的工具调用。
 	 */
 	ToolExecutionResult executeToolCalls(Prompt prompt, ChatResponse chatResponse);
 

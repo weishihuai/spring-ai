@@ -21,9 +21,7 @@ import java.lang.reflect.Type;
 import org.springframework.lang.Nullable;
 
 /**
- * A functional interface to convert tool call results to a String that can be sent back
- * to the AI model.
- *
+ * 一个函数式接口，用于将工具调用结果转换为可发送回AI模型的字符串形式。
  * @author Thomas Vitale
  * @since 1.0.0
  */
@@ -31,8 +29,7 @@ import org.springframework.lang.Nullable;
 public interface ToolCallResultConverter {
 
 	/**
-	 * Given an Object returned by a tool, convert it to a String compatible with the
-	 * given class type.
+	 * 将工具返回的对象结果转换为与给定类型兼容的字符串形式。
 	 */
 	String convert(@Nullable Object result, @Nullable Type returnType);
 

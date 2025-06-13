@@ -20,7 +20,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 
 /**
- * Provides {@link ToolCallback} instances for tools defined in different sources.
+ * 为在不同源中定义的工具提供{@link ToolCallback}实例。
  *
  * @author Thomas Vitale
  * @since 1.0.0

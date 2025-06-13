@@ -97,6 +97,7 @@ public class DefaultAroundAdvisorChain implements BaseAdvisorChain {
 			throw new IllegalStateException("No CallAdvisors available to execute");
 		}
 
+		// org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor
 		var advisor = this.callAdvisors.pop();
 
 		var observationContext = AdvisorObservationContext.builder()

@@ -22,7 +22,7 @@ import org.springframework.ai.tool.metadata.ToolMetadata;
 import org.springframework.lang.Nullable;
 
 /**
- * Represents a tool whose execution can be triggered by an AI model.
+ * 表示一个工具，其执行可以由AI模型触发。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -30,32 +30,30 @@ import org.springframework.lang.Nullable;
 public interface ToolCallback {
 
 	/**
-	 * Definition used by the AI model to determine when and how to call the tool.
+	 * AI模型用来确定何时以及如何调用工具的定义。
 	 */
 	ToolDefinition getToolDefinition();
 
-	/**
-	 * Metadata providing additional information on how to handle the tool.
-	 */
-	default ToolMetadata getToolMetadata() {
-		return ToolMetadata.builder().build();
-	}
+    /**
+     * 提供有关如何处理工具的附加信息的元数据。
+     */
+    default ToolMetadata getToolMetadata() {
+        return ToolMetadata.builder().build();
+    }
 
-	/**
-	 * Execute tool with the given input and return the result to send back to the AI
-	 * model.
-	 */
-	String call(String toolInput);
+    /**
+     * 使用给定的输入执行工具，并返回要发送回AI模型的结果。
+     */
+    String call(String toolInput);
 
-	/**
-	 * Execute tool with the given input and context, and return the result to send back
-	 * to the AI model.
-	 */
-	default String call(String toolInput, @Nullable ToolContext tooContext) {
-		if (tooContext != null && !tooContext.getContext().isEmpty()) {
-			throw new UnsupportedOperationException("Tool context is not supported!");
-		}
-		return call(toolInput);
-	}
+    /**
+     * 使用给定的输入和上下文执行工具，并返回要发送回AI模型的结果。
+     */
+    default String call(String toolInput, @Nullable ToolContext tooContext) {
+        if (tooContext != null && !tooContext.getContext().isEmpty()) {
+            throw new UnsupportedOperationException("不支持工具上下文！");
+        }
+        return call(toolInput);
+    }
 
 }

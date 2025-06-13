@@ -16,16 +16,9 @@
 
 package org.springframework.ai.model.tool;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -46,6 +39,12 @@ import org.springframework.ai.tool.resolution.DelegatingToolCallbackResolver;
 import org.springframework.ai.tool.resolution.ToolCallbackResolver;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Default implementation of {@link ToolCallingManager}.
@@ -92,15 +91,20 @@ public final class DefaultToolCallingManager implements ToolCallingManager {
 		this.toolExecutionExceptionProcessor = toolExecutionExceptionProcessor;
 	}
 
+	/**
+	 * 解析工具定义（resolveToolDefinitions）：从ToolCallingChatOptions中解析出工具定义，确保模型能正确识别和使用工具
+	 *
+	 * @param chatOptions
+	 * @return
+	 */
 	@Override
 	public List<ToolDefinition> resolveToolDefinitions(ToolCallingChatOptions chatOptions) {
 		Assert.notNull(chatOptions, "chatOptions cannot be null");
 
 		List<ToolCallback> toolCallbacks = new ArrayList<>(chatOptions.getToolCallbacks());
 		for (String toolName : chatOptions.getToolNames()) {
-			// Skip the tool if it is already present in the request toolCallbacks.
-			// That might happen if a tool is defined in the options
-			// both as a ToolCallback and as a tool name.
+			// 如果该工具已经出现在请求工具回调中，则跳过该工具。
+			// 如果工具在选项中既定义为ToolCallback又定义为工具名称，则可能发生这种情况。
 			if (chatOptions.getToolCallbacks()
 				.stream()
 				.anyMatch(tool -> tool.getToolDefinition().name().equals(toolName))) {
@@ -116,11 +120,19 @@ public final class DefaultToolCallingManager implements ToolCallingManager {
 		return toolCallbacks.stream().map(ToolCallback::getToolDefinition).toList();
 	}
 
+	/**
+	 * 执行工具调用（executeToolCalls）：根据模型响应，执行相应的工具调用，并返回工具的执行结果
+	 *
+	 * @param prompt       提示词
+	 * @param chatResponse 模型响应
+	 * @return
+	 */
 	@Override
 	public ToolExecutionResult executeToolCalls(Prompt prompt, ChatResponse chatResponse) {
 		Assert.notNull(prompt, "prompt cannot be null");
 		Assert.notNull(chatResponse, "chatResponse cannot be null");
 
+		// 工具调用请求
 		Optional<Generation> toolCallGeneration = chatResponse.getResults()
 			.stream()
 			.filter(g -> !CollectionUtils.isEmpty(g.getOutput().getToolCalls()))
@@ -132,11 +144,14 @@ public final class DefaultToolCallingManager implements ToolCallingManager {
 
 		AssistantMessage assistantMessage = toolCallGeneration.get().getOutput();
 
+		// 构建工具上下文（buildToolContext）：为工具调用提供上下文信息，历史的Message记录
 		ToolContext toolContext = buildToolContext(prompt, assistantMessage);
 
+		// 执行工具调用
 		InternalToolExecutionResult internalToolExecutionResult = executeToolCall(prompt, assistantMessage,
 				toolContext);
 
+		// 工具执行后，组装对话历史（ChatMemory），包括用户输入、LLM响应、工具执行结果
 		List<Message> conversationHistory = buildConversationHistoryAfterToolExecution(prompt.getInstructions(),
 				assistantMessage, internalToolExecutionResult.toolResponseMessage());
 
@@ -173,7 +188,7 @@ public final class DefaultToolCallingManager implements ToolCallingManager {
 	}
 
 	/**
-	 * Execute the tool call and return the response message.
+	 * 执行工具调用并返回响应消息。
 	 */
 	private InternalToolExecutionResult executeToolCall(Prompt prompt, AssistantMessage assistantMessage,
 			ToolContext toolContext) {
@@ -185,12 +200,13 @@ public final class DefaultToolCallingManager implements ToolCallingManager {
 		List<ToolResponseMessage.ToolResponse> toolResponses = new ArrayList<>();
 
 		Boolean returnDirect = null;
-
+		// 遍历大模型决策出需要调用的工具列表
 		for (AssistantMessage.ToolCall toolCall : assistantMessage.getToolCalls()) {
 
 			logger.debug("Executing tool call: {}", toolCall.name());
-
+			// 工具名称：如getCurrentDateTime
 			String toolName = toolCall.name();
+			// 工具调用参数
 			String toolInputArguments = toolCall.arguments();
 
 			ToolCallback toolCallback = toolCallbacks.stream()

@@ -16,12 +16,6 @@
 
 package org.springframework.ai.tool.support;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.execution.DefaultToolCallResultConverter;
@@ -29,6 +23,12 @@ import org.springframework.ai.tool.execution.ToolCallResultConverter;
 import org.springframework.ai.util.ParsingUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Miscellaneous tool utility methods. Mainly for internal use within the framework.
@@ -40,6 +40,12 @@ public final class ToolUtils {
 	private ToolUtils() {
 	}
 
+	/**
+	 * 获取工具名称
+	 *
+	 * @param method
+	 * @return
+	 */
 	public static String getToolName(Method method) {
 		Assert.notNull(method, "method cannot be null");
 		var tool = method.getAnnotation(Tool.class);
@@ -49,11 +55,23 @@ public final class ToolUtils {
 		return StringUtils.hasText(tool.name()) ? tool.name() : method.getName();
 	}
 
+	/**
+	 * 根据工具名称生成工具的描述
+	 *
+	 * @param toolName
+	 * @return
+	 */
 	public static String getToolDescriptionFromName(String toolName) {
 		Assert.hasText(toolName, "toolName cannot be null or empty");
 		return ParsingUtils.reConcatenateCamelCase(toolName, " ");
 	}
 
+	/**
+	 * 获取工具描述
+	 *
+	 * @param method
+	 * @return
+	 */
 	public static String getToolDescription(Method method) {
 		Assert.notNull(method, "method cannot be null");
 		var tool = method.getAnnotation(Tool.class);
@@ -63,12 +81,24 @@ public final class ToolUtils {
 		return StringUtils.hasText(tool.description()) ? tool.description() : method.getName();
 	}
 
+	/**
+	 * 判断工具是否直接返回结果
+	 *
+	 * @param method
+	 * @return
+	 */
 	public static boolean getToolReturnDirect(Method method) {
 		Assert.notNull(method, "method cannot be null");
 		var tool = method.getAnnotation(Tool.class);
 		return tool != null && tool.returnDirect();
 	}
 
+	/**
+	 * 获取工具的结果转换器
+	 *
+	 * @param method
+	 * @return
+	 */
 	public static ToolCallResultConverter getToolCallResultConverter(Method method) {
 		Assert.notNull(method, "method cannot be null");
 		var tool = method.getAnnotation(Tool.class);
@@ -84,6 +114,12 @@ public final class ToolUtils {
 		}
 	}
 
+	/**
+	 * 检查工具回调列表中是否有重复的工具名称
+	 *
+	 * @param toolCallbacks 工具回调列表
+	 * @return
+	 */
 	public static List<String> getDuplicateToolNames(List<ToolCallback> toolCallbacks) {
 		Assert.notNull(toolCallbacks, "toolCallbacks cannot be null");
 		return toolCallbacks.stream()

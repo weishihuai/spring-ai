@@ -208,6 +208,7 @@
 		<module>spring-ai-integration-tests</module>
 
 		<module>mcp/common</module>
+		<module>spring-ai-tool-calling-example</module>
 	</modules>
 
 	<organization>

@@ -54,7 +54,7 @@ public interface ToolCallingChatOptions extends ChatOptions {
 	void setToolCallbacks(List<ToolCallback> toolCallbacks);
 
 	/**
-	 * Names of the tools to register with the ChatModel.
+	 * 要向ChatModel注册的工具的名称。
 	 */
 	Set<String> getToolNames();
 

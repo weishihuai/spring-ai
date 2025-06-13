@@ -32,7 +32,7 @@ import org.springframework.ai.util.json.JsonParser;
 import org.springframework.lang.Nullable;
 
 /**
- * A default implementation of {@link ToolCallResultConverter}.
+ * {@link ToolCallResultConverter}的默认实现。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -43,10 +43,12 @@ public final class DefaultToolCallResultConverter implements ToolCallResultConve
 
 	@Override
 	public String convert(@Nullable Object result, @Nullable Type returnType) {
+		// 无返回类型时：返回 "Done" 的 JSON 字符串。
 		if (returnType == Void.TYPE) {
 			logger.debug("The tool has no return type. Converting to conventional response.");
 			return JsonParser.toJson("Done");
 		}
+		// 处理图像结果: 将其编码为 PNG 格式并转为 Base64 字符串，再封装成带有 MIME 类型的 JSON 对象
 		if (result instanceof RenderedImage) {
 			final var buf = new ByteArrayOutputStream(1024 * 4);
 			try {
@@ -59,6 +61,7 @@ public final class DefaultToolCallResultConverter implements ToolCallResultConve
 			return JsonParser.toJson(Map.of("mimeType", "image/png", "data", imgB64));
 		}
 		else {
+			// 默认处理：其他情况直接将结果转换为 JSON 字符串。
 			logger.debug("Converting tool result to JSON.");
 			return JsonParser.toJson(result);
 		}

@@ -49,8 +49,10 @@ public final class ChatModelCallAdvisor implements CallAdvisor {
 	public ChatClientResponse adviseCall(ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {
 		Assert.notNull(chatClientRequest, "the chatClientRequest cannot be null");
 
+		// 将指定的输出格式要求附加到用户消息中
 		ChatClientRequest formattedChatClientRequest = augmentWithFormatInstructions(chatClientRequest);
 
+		// 调用对应的聊天模型，如DeepSeekChatModel.call
 		ChatResponse chatResponse = this.chatModel.call(formattedChatClientRequest.prompt());
 		return ChatClientResponse.builder()
 			.chatResponse(chatResponse)

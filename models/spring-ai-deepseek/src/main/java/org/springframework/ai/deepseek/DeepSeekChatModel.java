@@ -151,7 +151,7 @@ public class DeepSeekChatModel implements ChatModel {
 	}
 
 	public ChatResponse internalCall(Prompt prompt, ChatResponse previousChatResponse) {
-
+		// 创建DeepSeek API请求，将工具定义添加到请求的tools参数中
 		ChatCompletionRequest request = createRequest(prompt, false);
 
 		ChatModelObservationContext observationContext = ChatModelObservationContext.builder()
@@ -163,7 +163,7 @@ public class DeepSeekChatModel implements ChatModel {
 			.observation(this.observationConvention, DEFAULT_OBSERVATION_CONVENTION, () -> observationContext,
 					this.observationRegistry)
 			.observe(() -> {
-
+				// 通过restClient发送post请求到DeepSeek API
 				ResponseEntity<ChatCompletion> completionEntity = this.retryTemplate
 					.execute(ctx -> this.deepSeekApi.chatCompletionEntity(request));
 
@@ -205,17 +205,20 @@ public class DeepSeekChatModel implements ChatModel {
 
 			});
 
+		// 判断大模型是否需要执行工具
 		if (this.toolExecutionEligibilityPredicate.isToolExecutionRequired(prompt.getOptions(), response)) {
+			// 通过ToolCallingManager执行工具
 			var toolExecutionResult = this.toolCallingManager.executeToolCalls(prompt, response);
+
 			if (toolExecutionResult.returnDirect()) {
-				// Return tool execution result directly to the client.
+				// 将工具执行结果直接返回给客户端
 				return ChatResponse.builder()
 					.from(response)
 					.generations(ToolExecutionResult.buildGenerations(toolExecutionResult))
 					.build();
 			}
 			else {
-				// Send the tool execution result back to the model.
+				// 递归调用internalCall方法，将工具执行结果发送回模型
 				return this.internalCall(new Prompt(toolExecutionResult.conversationHistory(), prompt.getOptions()),
 						response);
 			}
@@ -463,7 +466,7 @@ public class DeepSeekChatModel implements ChatModel {
 		DeepSeekChatOptions requestOptions = (DeepSeekChatOptions) prompt.getOptions();
 		request = ModelOptionsUtils.merge(requestOptions, request, ChatCompletionRequest.class);
 
-		// Add the tool definitions to the request's tools parameter.
+		// 通过ToolCallbackResolver解析出工具定义，将工具定义添加到请求的tools参数中。
 		List<ToolDefinition> toolDefinitions = this.toolCallingManager.resolveToolDefinitions(requestOptions);
 		if (!CollectionUtils.isEmpty(toolDefinitions)) {
 			request = ModelOptionsUtils.merge(

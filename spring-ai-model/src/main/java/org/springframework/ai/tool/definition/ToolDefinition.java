@@ -17,7 +17,7 @@
 package org.springframework.ai.tool.definition;
 
 /**
- * Definition used by the AI model to determine when and how to call the tool.
+ * AI模型用来确定何时以及如何调用工具的定义。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -25,22 +25,22 @@ package org.springframework.ai.tool.definition;
 public interface ToolDefinition {
 
 	/**
-	 * The tool name. Unique within the tool set provided to a model.
+	 * 工具名称。在提供给模型的工具集中是唯一的。
 	 */
 	String name();
 
 	/**
-	 * The tool description, used by the AI model to determine what the tool does.
+	 * AI模型使用工具描述来确定工具的功能。
 	 */
 	String description();
 
 	/**
-	 * The schema of the parameters used to call the tool.
+	 * 用于调用工具的参数的模式。
 	 */
 	String inputSchema();
 
 	/**
-	 * Create a default {@link ToolDefinition} builder.
+	 * 创建一个默认的{@link ToolDefinition}构建器。
 	 */
 	static DefaultToolDefinition.Builder builder() {
 		return DefaultToolDefinition.builder();

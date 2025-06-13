@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Default implementation of {@link ToolDefinition}.
+ * {@link ToolDefinition}的默认实现.
  *
  * @author Thomas Vitale
  * @since 1.0.0

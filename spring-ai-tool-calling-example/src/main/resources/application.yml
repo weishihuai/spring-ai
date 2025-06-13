@@ -1,0 +1,20 @@
+server:
+  port: 1001
+spring:
+  application:
+    name: spring-ai-tool-calling-example
+  ai:
+    deepseek:
+      api-key: sk-588fa626789b48e38ff2ab4b6891530b
+      base-url: https://api.deepseek.com
+      chat:
+        enabled: true
+        options:
+          model: deepseek-chat
+
+# 开启日志输出
+logging:
+  level:
+    org.springframework.ai: DEBUG
+
+

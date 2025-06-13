@@ -438,7 +438,9 @@ public class DefaultChatClient implements ChatClient {
 		@Override
 		@Nullable
 		public String content() {
+			// 获取可观察的聊天客户端响应
 			ChatResponse chatResponse = doGetObservableChatClientResponse(this.request).chatResponse();
+			// 获取响应内容
 			return getContentFromChatResponse(chatResponse);
 		}
 
@@ -453,6 +455,7 @@ public class DefaultChatClient implements ChatClient {
 				chatClientRequest.context().put(ChatClientAttributes.OUTPUT_FORMAT.getKey(), outputFormat);
 			}
 
+			// 可观测上下文
 			ChatClientObservationContext observationContext = ChatClientObservationContext.builder()
 				.request(chatClientRequest)
 				.advisors(this.advisorChain.getCallAdvisors())
@@ -465,7 +468,7 @@ public class DefaultChatClient implements ChatClient {
 
 			// CHECKSTYLE:OFF
 			var chatClientResponse = observation.observe(() -> {
-				// Apply the advisor chain that terminates with the ChatModelCallAdvisor.
+				// 执行顾问链调用模型获取响应
 				return this.advisorChain.nextCall(chatClientRequest);
 			});
 			// CHECKSTYLE:ON
@@ -915,6 +918,8 @@ public class DefaultChatClient implements ChatClient {
 		private BaseAdvisorChain buildAdvisorChain() {
 			// At the stack bottom add the model call advisors.
 			// They play the role of the last advisors in the advisor chain.
+
+			// 添加模型调用顾问：用于最终执行模型调用和流式响应。
 			this.advisors.add(ChatModelCallAdvisor.builder().chatModel(this.chatModel).build());
 			this.advisors.add(ChatModelStreamAdvisor.builder().chatModel(this.chatModel).build());
 

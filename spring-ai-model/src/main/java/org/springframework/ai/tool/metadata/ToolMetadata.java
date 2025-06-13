@@ -22,7 +22,7 @@ import org.springframework.ai.tool.support.ToolUtils;
 import org.springframework.util.Assert;
 
 /**
- * Metadata about a tool specification and execution.
+ * 工具规范和执行的元数据。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -30,24 +30,25 @@ import org.springframework.util.Assert;
 public interface ToolMetadata {
 
 	/**
-	 * Whether the tool result should be returned directly or passed back to the model.
+	 * 指定工具结果是直接返回还是传递回模型
 	 */
 	default boolean returnDirect() {
 		return false;
 	}
 
 	/**
-	 * Create a default {@link ToolMetadata} builder.
+	 * 创建默认的 {@link ToolMetadata} 构建器。
 	 */
 	static DefaultToolMetadata.Builder builder() {
 		return DefaultToolMetadata.builder();
 	}
 
 	/**
-	 * Create a default {@link ToolMetadata} instance from a {@link Method}.
+	 * 从 {@link Method} 创建默认的 {@link ToolMetadata} 实例。
 	 */
 	static ToolMetadata from(Method method) {
 		Assert.notNull(method, "method cannot be null");
+		// 从方法上的@Tool注解中获取returnDirect属性值
 		return DefaultToolMetadata.builder().returnDirect(ToolUtils.getToolReturnDirect(method)).build();
 	}
 

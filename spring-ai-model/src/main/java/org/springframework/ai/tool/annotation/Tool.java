@@ -26,7 +26,7 @@ import org.springframework.ai.tool.execution.DefaultToolCallResultConverter;
 import org.springframework.ai.tool.execution.ToolCallResultConverter;
 
 /**
- * Marks a method as a tool in Spring AI.
+ * 标记一个方法为Spring AI中的工具。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -37,22 +37,22 @@ import org.springframework.ai.tool.execution.ToolCallResultConverter;
 public @interface Tool {
 
 	/**
-	 * The name of the tool. If not provided, the method name will be used.
+	 * 工具的名称。如果没有提供，则使用方法名。
 	 */
 	String name() default "";
 
 	/**
-	 * The description of the tool. If not provided, the method name will be used.
+	 * 工具的描述。如果没有提供，则使用方法名。
 	 */
 	String description() default "";
 
 	/**
-	 * Whether the tool result should be returned directly or passed back to the model.
+	 * 工具的结果是否应该直接返回还是传递回模型。
 	 */
 	boolean returnDirect() default false;
 
 	/**
-	 * The class to use to convert the tool call result to a String.
+	 * 用于将工具调用结果转换为字符串的类。
 	 */
 	Class<? extends ToolCallResultConverter> resultConverter() default DefaultToolCallResultConverter.class;
 

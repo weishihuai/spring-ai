@@ -19,13 +19,19 @@ package org.springframework.ai.tool;
 import java.util.List;
 
 /**
- * Provides {@link ToolCallback} instances for tools defined in different sources.
+ * 为在不同源中定义的工具提供{@link ToolCallback}实例。
+ * 用于集中管理和提供工具回调
  *
  * @author Thomas Vitale
  * @since 1.0.0
  */
 public interface ToolCallbackProvider {
 
+	/**
+	 * 获得工具回调数组
+	 *
+	 * @return 工具回调数组
+	 */
 	ToolCallback[] getToolCallbacks();
 
 	static ToolCallbackProvider from(List<? extends ToolCallback> toolCallbacks) {

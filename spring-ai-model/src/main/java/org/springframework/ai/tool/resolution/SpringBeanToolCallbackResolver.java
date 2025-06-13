@@ -47,8 +47,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * A Spring {@link ApplicationContext}-based implementation that provides a way to
- * retrieve a bean from the Spring context and wrap it into a {@link ToolCallback}.
+ * 一个基于Spring {@link ApplicationContext}的实现，
+ * 提供了一种从Spring上下文中检索bean并将其包装到{@link ToolCallback}中的方法。
  *
  * @author Christian Tzolov
  * @author Christopher Smith
