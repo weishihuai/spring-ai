@@ -5,7 +5,7 @@ spring:
     name: spring-ai-tool-calling-example
   ai:
     deepseek:
-      api-key: sk-588fa626789b48e38ff2ab4b6891530b
+      api-key: ${DEEPSEEK_API_KEY}
       base-url: https://api.deepseek.com
       chat:
         enabled: true

@@ -1,0 +1,26 @@
+server:
+  port: 1018
+spring:
+  application:
+    name: spring-ai-mcp-client-stdio-examples
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: https://api.deepseek.com
+      chat:
+        enabled: true
+        options:
+          model: deepseek-chat
+    mcp:
+      client:
+        stdio:
+          # 指定MCP服务器配置文件路径（推荐）
+          servers-configuration: classpath:/mcp-servers-config.json
+
+# 调试日志
+logging:
+  level:
+    io:
+      modelcontextprotocol:
+        client: DEBUG
+        spec: DEBUG

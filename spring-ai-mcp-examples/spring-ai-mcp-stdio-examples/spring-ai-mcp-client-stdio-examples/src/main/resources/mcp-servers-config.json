@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "weather-tools-server": {
+      "command": "java",
+      "args": [
+        "-Dspring.ai.mcp.server.stdio=true",
+        "-Dspring.main.web-application-type=none",
+        "-Dlogging.pattern.console=",
+        "-jar",
+        "D:\\newworkspace\\spring-ai\\spring-ai-mcp-examples\\spring-ai-mcp-stdio-examples\\spring-ai-mcp-server-stdio-examples\\target\\spring-ai-mcp-server-stdio-examples-1.0.0.jar"
+      ],
+      "env": {}
+    }
+  }
+}

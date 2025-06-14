@@ -1,0 +1,23 @@
+spring:
+  main:
+    web-application-type: none  # 必须禁用web应用类型
+    banner-mode: off           # 禁用banner
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: https://api.deepseek.com
+      chat:
+        enabled: true
+        options:
+          model: deepseek-chat
+
+    mcp:
+      server:
+        stdio: true            # 启用stdio模式
+        name: my-weather-server # 服务器名称
+        version: 0.0.1         # 服务器版本
+
+# 开启日志输出
+logging:
+  level:
+    org.springframework.ai: DEBUG
