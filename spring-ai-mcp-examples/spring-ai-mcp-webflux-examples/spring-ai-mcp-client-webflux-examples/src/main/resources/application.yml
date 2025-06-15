@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: spring-ai-mcp-client-webflux-examples
+  main:
+    web-application-type: none
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: https://api.deepseek.com
+      chat:
+        enabled: true
+        options:
+          model: deepseek-chat
+
+    mcp:
+      client:
+        toolcallback:
+          enabled: true
+        sse:
+          connections:
+            weather-tool:
+              # 实际的连接地址为：http://localhost:8080/sse/mcp
+              url: http://localhost:8080/
+
+# 调试日志
+logging:
+  level:
+    io:
+      modelcontextprotocol:
+        client: DEBUG
+        spec: DEBUG
+
+ai:
+  user:
+    input: 北京的天气如何？
