@@ -16,10 +16,6 @@
 
 package org.springframework.ai.mcp;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.micrometer.common.util.StringUtils;
@@ -30,15 +26,18 @@ import io.modelcontextprotocol.server.McpServerFeatures.AsyncToolSpecification;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.Role;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MimeType;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utility class that provides helper methods for working with Model Context Protocol
@@ -70,6 +69,16 @@ public final class McpToolUtils {
 	private McpToolUtils() {
 	}
 
+	/**
+	 * 拼接输入：将两者用下划线 _ 连接。
+	 * 清理字符：移除所有非字母数字、下划线和横线的字符。
+	 * 替换横线：将横线 - 替换为下划线 _。
+	 * 限制长度：若超过64字符，保留最后64个字符。
+	 *
+	 * @param prefix
+	 * @param toolName
+	 * @return
+	 */
 	public static String prefixedToolName(String prefix, String toolName) {
 
 		if (StringUtils.isEmpty(prefix) || StringUtils.isEmpty(toolName)) {
@@ -93,11 +102,13 @@ public final class McpToolUtils {
 	}
 
 	/**
+	 * 将一组 ToolCallback 转换为对应的 MCP 同步工具规范。
 	 * Converts a list of Spring AI tool callbacks to MCP synchronous tool specification.
 	 * <p>
 	 * This method processes multiple tool callbacks in bulk, converting each one to its
 	 * corresponding MCP tool specification while maintaining synchronous execution
 	 * semantics.
+	 *
 	 * @param toolCallbacks the list of tool callbacks to convert
 	 * @return a list of MCP synchronous tool specification
 	 */
@@ -112,6 +123,7 @@ public final class McpToolUtils {
 	 * <p>
 	 * This is a varargs wrapper around {@link #toSyncToolSpecification(List)} for easier
 	 * usage when working with individual callbacks.
+	 *
 	 * @param toolCallbacks the tool callbacks to convert
 	 * @return a list of MCP synchronous tool specification
 	 */
@@ -134,9 +146,10 @@ public final class McpToolUtils {
 	 * <li>Provides error handling and result formatting according to MCP
 	 * specifications</li>
 	 * </ul>
-	 *
+	 * <p>
 	 * You can use the ToolCallback builder to create a new instance of ToolCallback using
 	 * either java.util.function.Function or Method reference.
+	 *
 	 * @param toolCallback the Spring AI function callback to convert
 	 * @return an MCP SyncToolSpecification that wraps the function callback
 	 * @throws RuntimeException if there's an error during the function execution
@@ -146,9 +159,8 @@ public final class McpToolUtils {
 	}
 
 	/**
-	 * Converts a Spring AI ToolCallback to an MCP SyncToolSpecification. This enables
-	 * Spring AI functions to be exposed as MCP tools that can be discovered and invoked
-	 * by language models.
+	 * 将Spring AI工具回调转换为MCP SyncToolSpecification。
+	 * 这使得Spring AI函数可以作为MCP工具公开，可以被语言模型发现和调用。
 	 *
 	 * <p>
 	 * The conversion process:
@@ -159,26 +171,37 @@ public final class McpToolUtils {
 	 * <li>Provides error handling and result formatting according to MCP
 	 * specifications</li>
 	 * </ul>
+	 *
 	 * @param toolCallback the Spring AI function callback to convert
-	 * @param mimeType the MIME type of the output content
+	 * @param mimeType     the MIME type of the output content
 	 * @return an MCP SyncToolSpecification that wraps the function callback
 	 * @throws RuntimeException if there's an error during the function execution
 	 */
 	public static McpServerFeatures.SyncToolSpecification toSyncToolSpecification(ToolCallback toolCallback,
 			MimeType mimeType) {
-
+		// 创建 MCP 工具定义
 		var tool = new McpSchema.Tool(toolCallback.getToolDefinition().name(),
 				toolCallback.getToolDefinition().description(), toolCallback.getToolDefinition().inputSchema());
 
+		// 构建同步工具规范,包含工具定义和具体的执行逻辑。
+		// exchange：MCP 服务器交换对象，用于处理请求和响应。
+		// request：工具调用的请求数据。
 		return new McpServerFeatures.SyncToolSpecification(tool, (exchange, request) -> {
 			try {
+				// 使用 toolCallback 执行工具并处理结果
 				String callResult = toolCallback.call(ModelOptionsUtils.toJsonString(request),
+						// 创建 ToolContext，将 exchange 对象存储在上下文中
 						new ToolContext(Map.of(TOOL_CONTEXT_MCP_EXCHANGE_KEY, exchange)));
+				// 处理不同类型的响应
+
+				// 图像响应
 				if (mimeType != null && mimeType.toString().startsWith("image")) {
 					return new McpSchema.CallToolResult(List
 						.of(new McpSchema.ImageContent(List.of(Role.ASSISTANT), null, callResult, mimeType.toString())),
 							false);
 				}
+
+				// 文本响应
 				return new McpSchema.CallToolResult(List.of(new McpSchema.TextContent(callResult)), false);
 			}
 			catch (Exception e) {
@@ -189,6 +212,7 @@ public final class McpToolUtils {
 
 	/**
 	 * Retrieves the MCP exchange object from the provided tool context if it exists.
+	 *
 	 * @param toolContext the tool context from which to retrieve the MCP exchange
 	 * @return the MCP exchange object, or null if not present in the context
 	 */
@@ -207,6 +231,7 @@ public final class McpToolUtils {
 	 * corresponding MCP tool specification while adding asynchronous execution
 	 * capabilities. The resulting specifications will execute their tools on a bounded
 	 * elastic scheduler.
+	 *
 	 * @param toolCallbacks the list of tool callbacks to convert
 	 * @return a list of MCP asynchronous tool specifications
 	 */
@@ -221,6 +246,7 @@ public final class McpToolUtils {
 	 * <p>
 	 * This is a varargs wrapper around {@link #toAsyncToolSpecifications(List)} for
 	 * easier usage when working with individual callbacks.
+	 *
 	 * @param toolCallbacks the tool callbacks to convert
 	 * @return a list of MCP asynchronous tool specifications
 	 * @see #toAsyncToolSpecifications(List)
@@ -248,6 +274,7 @@ public final class McpToolUtils {
 	 * <li>Handle errors and results asynchronously</li>
 	 * <li>Provide backpressure through Project Reactor</li>
 	 * </ul>
+	 *
 	 * @param toolCallback the Spring AI tool callback to convert
 	 * @return an MCP asynchronous tool specification that wraps the tool callback
 	 * @see McpServerFeatures.AsyncToolSpecification
@@ -276,8 +303,9 @@ public final class McpToolUtils {
 	 * <li>Handle errors and results asynchronously</li>
 	 * <li>Provide backpressure through Project Reactor</li>
 	 * </ul>
+	 *
 	 * @param toolCallback the Spring AI tool callback to convert
-	 * @param mimeType the MIME type of the output content
+	 * @param mimeType     the MIME type of the output content
 	 * @return an MCP asynchronous tool specificaiotn that wraps the tool callback
 	 * @see McpServerFeatures.AsyncToolSpecification
 	 * @see Schedulers#boundedElastic()
@@ -287,9 +315,13 @@ public final class McpToolUtils {
 
 		McpServerFeatures.SyncToolSpecification syncToolSpecification = toSyncToolSpecification(toolCallback, mimeType);
 
+		// 构建异步工具规范
+		// 将同步执行包装成响应式编程模型（Reactive Streams）中的 Mono，并调度到非阻塞线程池中执行。
 		return new AsyncToolSpecification(syncToolSpecification.tool(),
 				(exchange, map) -> Mono
+						// Mono.fromCallable(...)：将同步方法调用封装为响应式流，支持异步处理。
 					.fromCallable(() -> syncToolSpecification.call().apply(new McpSyncServerExchange(exchange), map))
+						// 使用 Reactor 提供的弹性线程池进行非阻塞调度，防止阻塞主线程。
 					.subscribeOn(Schedulers.boundedElastic()));
 	}
 
@@ -298,6 +330,7 @@ public final class McpToolUtils {
 	 * <p>
 	 * This is a varargs wrapper around {@link #getToolCallbacksFromSyncClients(List)} for
 	 * easier usage when working with individual clients.
+	 *
 	 * @param mcpClients the synchronous MCP clients to get callbacks from
 	 * @return a list of tool callbacks from all provided clients
 	 * @see #getToolCallbacksFromSyncClients(List)
@@ -315,6 +348,7 @@ public final class McpToolUtils {
 	 * <li>Creates a provider for each client</li>
 	 * <li>Retrieves and combines all tool callbacks into a single list</li>
 	 * </ol>
+	 *
 	 * @param mcpClients the list of synchronous MCP clients to get callbacks from
 	 * @return a list of tool callbacks from all provided clients
 	 */
@@ -331,6 +365,7 @@ public final class McpToolUtils {
 	 * <p>
 	 * This is a varargs wrapper around {@link #getToolCallbacksFromAsyncClients(List)}
 	 * for easier usage when working with individual clients.
+	 *
 	 * @param asyncMcpClients the asynchronous MCP clients to get callbacks from
 	 * @return a list of tool callbacks from all provided clients
 	 * @see #getToolCallbacksFromAsyncClients(List)
@@ -348,6 +383,7 @@ public final class McpToolUtils {
 	 * <li>Creates a provider for each client</li>
 	 * <li>Retrieves and combines all tool callbacks into a single list</li>
 	 * </ol>
+	 *
 	 * @param asyncMcpClients the list of asynchronous MCP clients to get callbacks from
 	 * @return a list of tool callbacks from all provided clients
 	 */

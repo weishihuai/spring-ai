@@ -107,8 +107,7 @@ import org.springframework.util.CollectionUtils;
 public class McpClientAutoConfiguration {
 
 	/**
-	 * Create a dynamic client name based on the client name and the name of the server
-	 * connection.
+	 * 根据客户端名称和服务器连接名称创建一个动态的客户端名称。
 	 * @param clientName the client name as defined by the configuration
 	 * @param serverConnectionName the name of the server connection being used by the
 	 * client
@@ -119,8 +118,7 @@ public class McpClientAutoConfiguration {
 	}
 
 	/**
-	 * Creates a list of {@link McpSyncClient} instances based on the available
-	 * transports.
+	 * 基于可用传输创建{@link McpSyncClient}实例列表。
 	 *
 	 * <p>
 	 * Each client is configured with:
@@ -131,8 +129,7 @@ public class McpClientAutoConfiguration {
 	 * </ul>
 	 *
 	 * <p>
-	 * If initialization is enabled in properties, the clients are automatically
-	 * initialized.
+	 * 如果在属性中启用了初始化，则会自动初始化客户端。
 	 * @param mcpSyncClientConfigurer the configurer for customizing client creation
 	 * @param commonProperties common MCP client properties
 	 * @param transportsProvider provider of named MCP transports
@@ -147,23 +144,28 @@ public class McpClientAutoConfiguration {
 
 		List<McpSyncClient> mcpSyncClients = new ArrayList<>();
 
+		// 获取所有可用的命名传输通道
 		List<NamedClientMcpTransport> namedTransports = transportsProvider.stream().flatMap(List::stream).toList();
 
 		if (!CollectionUtils.isEmpty(namedTransports)) {
+			// 遍历每个传输通道，创建客户端
 			for (NamedClientMcpTransport namedTransport : namedTransports) {
 
+				// 创建一个描述客户端信息的对象，包含连接后的名称和版本号。
 				McpSchema.Implementation clientInfo = new McpSchema.Implementation(
 						this.connectedClientName(commonProperties.getName(), namedTransport.name()),
 						commonProperties.getVersion());
 
+				// 使用当前传输通道创建同步客户端规格对象，并设置客户端信息和请求超时时间。
 				McpClient.SyncSpec spec = McpClient.sync(namedTransport.transport())
 					.clientInfo(clientInfo)
 					.requestTimeout(commonProperties.getRequestTimeout());
 
+				// 对客户端规格进行进一步的定制处理
 				spec = mcpSyncClientConfigurer.configure(namedTransport.name(), spec);
 
+				// 构建客户端实例
 				var client = spec.build();
-
 				if (commonProperties.isInitialized()) {
 					client.initialize();
 				}

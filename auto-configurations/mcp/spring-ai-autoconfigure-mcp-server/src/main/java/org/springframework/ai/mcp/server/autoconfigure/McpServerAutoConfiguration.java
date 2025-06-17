@@ -60,46 +60,41 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MimeType;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for the Model Context Protocol (MCP)
- * Server.
+ * {@link EnableAutoConfiguration 自动配置} 用于模型上下文协议 (MCP) 服务器。
  * <p>
- * This configuration class sets up the core MCP server components with support for both
- * synchronous and asynchronous operation modes. The server type is controlled through the
- * {@code spring.ai.mcp.server.type} property, defaulting to SYNC mode.
+ * 此配置类设置核心 MCP 服务器组件，支持同步和异步操作模式。服务器类型通过
+ * {@code spring.ai.mcp.server.type} 属性控制，默认为 SYNC 模式。
  * <p>
- * Core features and capabilities include:
+ * 核心功能和能力包括：
  * <ul>
- * <li>Tools: Extensible tool registration system supporting both sync and async
- * execution</li>
- * <li>Resources: Static and dynamic resource management with optional change
- * notifications</li>
- * <li>Prompts: Configurable prompt templates with change notification support</li>
- * <li>Transport: Flexible transport layer with built-in support for:
+ * <li>工具：可扩展的工具注册系统，支持同步和异步执行</li>
+ * <li>资源：静态和动态资源管理，带有可选的变更通知</li>
+ * <li>提示：可配置的提示模板，支持变更通知</li>
+ * <li>传输：灵活的传输层，内置支持以下方式：
  * <ul>
- * <li>STDIO (default): Standard input/output based communication</li>
- * <li>WebMvc: HTTP-based transport when Spring MVC is available</li>
- * <li>WebFlux: Reactive transport when Spring WebFlux is available</li>
+ * <li>STDIO（默认）：基于标准输入/输出的通信</li>
+ * <li>WebMvc：当 Spring MVC 可用时使用 HTTP 基础传输</li>
+ * <li>WebFlux：当 Spring WebFlux 可用时使用响应式传输</li>
  * </ul>
  * </li>
  * </ul>
  * <p>
- * The configuration is activated when:
+ * 当满足以下条件时激活配置：
  * <ul>
- * <li>The required MCP classes ({@link McpSchema} and {@link McpSyncServer}) are on the
- * classpath</li>
- * <li>The {@code spring.ai.mcp.server.enabled} property is true (default)</li>
+ * <li>MCP 类 ({@link McpSchema} 和 {@link McpSyncServer}) 在类路径上</li>
+ * <li>{@code spring.ai.mcp.server.enabled} 属性为 true（默认值）</li>
  * </ul>
  * <p>
- * Server configuration is managed through {@link McpServerProperties} with support for:
+ * 服务器配置通过 {@link McpServerProperties} 管理，支持：
  * <ul>
- * <li>Server identification (name, version)</li>
- * <li>Transport selection</li>
- * <li>Change notification settings for tools, resources, and prompts</li>
- * <li>Sync/Async operation mode selection</li>
+ * <li>服务器标识（名称、版本）</li>
+ * <li>传输选择</li>
+ * <li>工具、资源和提示的变更通知设置</li>
+ * <li>同步/异步操作模式选择</li>
  * </ul>
  * <p>
- * WebMvc transport support is provided separately by
- * {@link McpWebMvcServerAutoConfiguration}.
+ * WebMvc 传输支持由
+ * {@link McpWebMvcServerAutoConfiguration} 单独提供。
  *
  * @author Christian Tzolov
  * @since 1.0.0
@@ -261,6 +256,18 @@ public class McpServerAutoConfiguration {
 		return serverBuilder.build();
 	}
 
+	/**
+	 * 配置异步工具列表
+	 * <p>
+	 * 该方法根据配置属性和提供的工具回调创建异步工具规范列表。
+	 * 它首先从ObjectProvider中获取工具回调列表，然后添加额外的工具回调列表。
+	 * 最后，调用toAsyncToolSpecification方法将工具转换为异步工具规范。
+	 * 
+	 * @param toolCalls         提供的工具回调列表的ObjectProvider
+	 * @param toolCallbackList  额外的工具回调列表
+	 * @param serverProperties  服务器配置属性
+	 * @return 异步工具规范列表
+	 */
 	@Bean
 	@ConditionalOnProperty(prefix = McpServerProperties.CONFIG_PREFIX, name = "type", havingValue = "ASYNC")
 	public List<McpServerFeatures.AsyncToolSpecification> asyncTools(ObjectProvider<List<ToolCallback>> toolCalls,
@@ -274,6 +281,16 @@ public class McpServerAutoConfiguration {
 		return this.toAsyncToolSpecification(tools, serverProperties);
 	}
 
+	/**
+	 * 将工具回调列表转换为异步工具规范列表。
+	 * <p>
+	 * 该方法首先通过工具名称去重工具列表，然后为每个工具创建异步工具规范。
+	 * 它会根据服务器属性中的工具响应MIME类型设置适当的MIME类型。
+	 * 
+	 * @param tools             工具回调列表
+	 * @param serverProperties  服务器配置属性
+	 * @return 异步工具规范列表
+	 */
 	private List<McpServerFeatures.AsyncToolSpecification> toAsyncToolSpecification(List<ToolCallback> tools,
 			McpServerProperties serverProperties) {
 		// De-duplicate tools by their name, keeping the first occurrence of each tool
@@ -296,6 +313,7 @@ public class McpServerAutoConfiguration {
 			.toList();
 	}
 
+	// 根据配置创建并初始化一个异步MCP服务器
 	@Bean
 	@ConditionalOnProperty(prefix = McpServerProperties.CONFIG_PREFIX, name = "type", havingValue = "ASYNC")
 	public McpAsyncServer mcpAsyncServer(McpServerTransportProvider transportProvider,
@@ -307,13 +325,15 @@ public class McpServerAutoConfiguration {
 			ObjectProvider<BiConsumer<McpAsyncServerExchange, List<McpSchema.Root>>> rootsChangeConsumer,
 			List<ToolCallbackProvider> toolCallbackProvider) {
 
+		// 构建MCP Server基本信息：名称、版本
 		McpSchema.Implementation serverInfo = new Implementation(serverProperties.getName(),
 				serverProperties.getVersion());
 
-		// Create the server with both tool and resource capabilities
+		// 创建异步服务器构建器，并设置服务器信息
 		AsyncSpecification serverBuilder = McpServer.async(transportProvider).serverInfo(serverInfo);
 
-		// Tools
+		// 按能力注册组件
+		// Tools: 从Spring上下文中获取所有 AsyncToolSpecification 和 ToolCallbackProvider，将其转换为工具规范并注册到服务器。
 		if (serverProperties.getCapabilities().isTool()) {
 			List<AsyncToolSpecification> toolSpecifications = new ArrayList<>(
 					tools.stream().flatMap(List::stream).toList());
@@ -335,7 +355,7 @@ public class McpServerAutoConfiguration {
 			}
 		}
 
-		// Resources
+		// Resources: 获取资源规范并注册
 		if (serverProperties.getCapabilities().isResource()) {
 			logger.info(
 					"Enable resources capabilities, notification: " + serverProperties.isResourceChangeNotification());
@@ -348,7 +368,7 @@ public class McpServerAutoConfiguration {
 			}
 		}
 
-		// Prompts
+		// Prompts:获取Prompt规范并注册。
 		if (serverProperties.getCapabilities().isPrompt()) {
 			logger.info("Enable prompts capabilities, notification: " + serverProperties.isPromptChangeNotification());
 			capabilitiesBuilder.prompts(serverProperties.isPromptChangeNotification());
@@ -360,7 +380,7 @@ public class McpServerAutoConfiguration {
 			}
 		}
 
-		// Completions
+		// Completions:获取补全规范并注册
 		if (serverProperties.getCapabilities().isCompletion()) {
 			logger.info("Enable completions capabilities");
 			capabilitiesBuilder.completions();
@@ -383,6 +403,7 @@ public class McpServerAutoConfiguration {
 			logger.info("Registered roots change consumer");
 		});
 
+		// 设置服务器能力、指令和超时时
 		serverBuilder.capabilities(capabilitiesBuilder.build());
 
 		serverBuilder.instructions(serverProperties.getInstructions());

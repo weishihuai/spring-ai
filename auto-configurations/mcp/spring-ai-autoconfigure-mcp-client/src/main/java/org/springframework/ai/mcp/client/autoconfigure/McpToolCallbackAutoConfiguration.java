@@ -35,19 +35,20 @@ import org.springframework.context.annotation.Conditional;
 
 /**
  */
+// 该配置应在 McpClientAutoConfiguration 配置之后加载,确保某些基础配置优先完成。
 @AutoConfiguration(after = { McpClientAutoConfiguration.class })
+// 启用对配置属性的支持，将前缀为 McpClientCommonProperties 的配置项绑定到该类中
 @EnableConfigurationProperties(McpClientCommonProperties.class)
 @Conditional(McpToolCallbackAutoConfiguration.McpToolCallbackAutoConfigurationCondition.class)
 public class McpToolCallbackAutoConfiguration {
 
 	/**
-	 * Creates tool callbacks for all configured MCP clients.
+	 * 为所有配置的 MCP 客户端创建工具回调。
 	 *
 	 * <p>
-	 * These callbacks enable integration with Spring AI's tool execution framework,
-	 * allowing MCP tools to be used as part of AI interactions.
-	 * @param syncMcpClients provider of MCP sync clients
-	 * @return list of tool callbacks for MCP integration
+	 * 这些回调启用了与 Spring AI 工具执行框架的集成，允许将 MCP 工具用作 AI 交互的一部分。
+	 * @param syncMcpClients MCP 同步客户端
+	 * @return 用于 MCP 集成的工具回调列表
 	 */
 	@Bean
 	@ConditionalOnProperty(prefix = McpClientCommonProperties.CONFIG_PREFIX, name = "type", havingValue = "SYNC",

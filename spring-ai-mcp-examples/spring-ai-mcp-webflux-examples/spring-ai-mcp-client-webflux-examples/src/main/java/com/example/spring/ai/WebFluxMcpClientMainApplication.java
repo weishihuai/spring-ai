@@ -10,10 +10,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class MainApplication {
+public class WebFluxMcpClientMainApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MainApplication.class, args);
+		SpringApplication.run(WebFluxMcpClientMainApplication.class, args);
 	}
 
 	@Value("${ai.user.input}")

@@ -29,24 +29,23 @@ import org.springframework.ai.tool.definition.DefaultToolDefinition;
 import org.springframework.ai.tool.definition.ToolDefinition;
 
 /**
- * Implementation of {@link ToolCallback} that adapts MCP tools to Spring AI's tool
- * interface with asynchronous execution support.
+ * 实现了 {@link ToolCallback} 接口，用于将 MCP 工具适配到 Spring AI 的工具接口，并支持异步执行。
  * <p>
- * This class acts as a bridge between the Model Context Protocol (MCP) and Spring AI's
- * tool system, allowing MCP tools to be used seamlessly within Spring AI applications.
- * It:
+ * 该类充当 Model Context Protocol (MCP) 和 Spring AI 工具系统之间的桥梁，允许 MCP 工具无缝地在 Spring AI 应用程序中使用。
  * <ul>
- * <li>Converts MCP tool definitions to Spring AI tool definitions</li>
- * <li>Handles the asynchronous execution of tool calls through the MCP client</li>
- * <li>Manages JSON serialization/deserialization of tool inputs and outputs</li>
+ * <li>将 MCP 工具定义转换为 Spring AI 工具定义</li>
+ * <li>通过 MCP 客户端处理工具调用的异步执行</li>
+ * <li>管理工具输入和输出的 JSON 序列化/反序列化</li>
  * </ul>
  * <p>
- * Example usage: <pre>{@code
- * McpAsyncClient mcpClient = // obtain MCP client
- * Tool mcpTool = // obtain MCP tool definition
+ * 示例用法：
+ *
+ * <pre>{@code
+ * McpAsyncClient mcpClient = // 获取 MCP 客户端
+ * Tool mcpTool = // 获取 MCP 工具定义
  * ToolCallback callback = new AsyncMcpToolCallback(mcpClient, mcpTool);
  *
- * // Use the tool through Spring AI's interfaces
+ * // 通过 Spring AI 的接口使用工具
  * ToolDefinition definition = callback.getToolDefinition();
  * String result = callback.call("{\"param\": \"value\"}");
  * }</pre>
@@ -58,14 +57,20 @@ import org.springframework.ai.tool.definition.ToolDefinition;
  */
 public class AsyncMcpToolCallback implements ToolCallback {
 
+	/**
+	 * MCP客户端（异步）
+	 */
 	private final McpAsyncClient asyncMcpClient;
 
+	/**
+	 * MCP 工具定义
+	 */
 	private final Tool tool;
 
 	/**
-	 * Creates a new {@code AsyncMcpToolCallback} instance.
-	 * @param mcpClient the MCP client to use for tool execution
-	 * @param tool the MCP tool definition to adapt
+	 * 创建一个新的 {@code AsyncMcpToolCallback} 实例。
+	 * @param mcpClient 用于工具执行的 MCP 客户端
+	 * @param tool 要适配的 MCP 工具定义
 	 */
 	public AsyncMcpToolCallback(McpAsyncClient mcpClient, Tool tool) {
 		this.asyncMcpClient = mcpClient;
@@ -73,15 +78,15 @@ public class AsyncMcpToolCallback implements ToolCallback {
 	}
 
 	/**
-	 * Returns a Spring AI tool definition adapted from the MCP tool.
+	 * 返回从 MCP 工具适配的 Spring AI 工具定义。
 	 * <p>
-	 * The tool definition includes:
+	 * 工具定义包括：
 	 * <ul>
-	 * <li>The tool's name from the MCP definition</li>
-	 * <li>The tool's description from the MCP definition</li>
-	 * <li>The input schema converted to JSON format</li>
+	 * <li>来自 MCP 定义的工具名称</li>
+	 * <li>来自 MCP 定义的工具描述</li>
+	 * <li>转换为 JSON 格式的输入模式</li>
 	 * </ul>
-	 * @return the Spring AI tool definition
+	 * @return Spring AI 工具定义
 	 */
 	@Override
 	public ToolDefinition getToolDefinition() {
@@ -93,22 +98,21 @@ public class AsyncMcpToolCallback implements ToolCallback {
 	}
 
 	/**
-	 * Executes the tool with the provided input asynchronously.
+	 * 使用提供的输入异步执行工具。
 	 * <p>
-	 * This method:
+	 * 该方法：
 	 * <ol>
-	 * <li>Converts the JSON input string to a map of arguments</li>
-	 * <li>Calls the tool through the MCP client asynchronously</li>
-	 * <li>Converts the tool's response content to a JSON string</li>
+	 * <li>将 JSON 输入字符串转换为参数映射</li>
+	 * <li>通过 MCP 客户端异步调用工具</li>
+	 * <li>将工具响应内容转换为 JSON 字符串</li>
 	 * </ol>
-	 * @param functionInput the tool input as a JSON string
-	 * @return the tool's response as a JSON string
+	 * @param functionInput 工具输入作为 JSON 字符串
+	 * @return 工具响应作为 JSON 字符串
 	 */
 	@Override
 	public String call(String functionInput) {
 		Map<String, Object> arguments = ModelOptionsUtils.jsonToMap(functionInput);
-		// Note that we use the original tool name here, not the adapted one from
-		// getToolDefinition
+		// 注意，这里使用原始工具名称，而不是来自 getToolDefinition 的适配名称
 		return this.asyncMcpClient.callTool(new CallToolRequest(this.tool.name(), arguments)).map(response -> {
 			if (response.isError() != null && response.isError()) {
 				throw new IllegalStateException("Error calling tool: " + response.content());
@@ -119,7 +123,7 @@ public class AsyncMcpToolCallback implements ToolCallback {
 
 	@Override
 	public String call(String toolArguments, ToolContext toolContext) {
-		// ToolContext is not supported by the MCP tools
+		// MCP 工具不支持 ToolContext
 		return this.call(toolArguments);
 	}
 

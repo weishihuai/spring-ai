@@ -123,35 +123,41 @@ public class AsyncMcpToolCallbackProvider implements ToolCallbackProvider {
 	}
 
 	/**
-	 * Discovers and returns all available tools from the configured MCP servers.
+	 * 从配置的MCP服务器中发现并返回所有可用的工具。
 	 * <p>
-	 * This method:
+	 * 该方法：
 	 * <ol>
-	 * <li>Retrieves the list of tools from each MCP server asynchronously</li>
-	 * <li>Creates a {@link AsyncMcpToolCallback} for each discovered tool</li>
-	 * <li>Validates that there are no duplicate tool names across all servers</li>
+	 * <li>异步地从每个MCP服务器获取工具列表</li>
+	 * <li>为每个发现的工具创建一个{@link AsyncMcpToolCallback}</li>
+	 * <li>验证所有服务器中没有重复的工具名称</li>
 	 * </ol>
 	 * <p>
-	 * Note: While the underlying tool discovery is asynchronous, this method blocks until
-	 * all tools are discovered from all servers.
-	 * @return an array of tool callbacks, one for each discovered tool
-	 * @throws IllegalStateException if duplicate tool names are found
+	 * 注意：虽然底层工具发现是异步的，但此方法会阻塞，直到从所有服务器发现所有工具。
+	 * @return 包含每个发现工具的工具回调数组
+	 * @throws IllegalStateException 如果发现重复的工具名称
 	 */
 	@Override
 	public ToolCallback[] getToolCallbacks() {
 
+		// 存储所有发现的工具回调
 		List<ToolCallback> toolCallbackList = new ArrayList<>();
 
+		// 遍历每个MCP异步客户端
 		for (McpAsyncClient mcpClient : this.mcpClients) {
 
+			// 异步获取工具列表并处理响应
 			ToolCallback[] toolCallbacks = mcpClient.listTools()
 				.map(response -> response.tools()
 					.stream()
+					// 过滤工具
 					.filter(tool -> this.toolFilter.test(mcpClient, tool))
+					// 为每个工具创建一个AsyncMcpToolCallback实例
 					.map(tool -> new AsyncMcpToolCallback(mcpClient, tool))
 					.toArray(ToolCallback[]::new))
+				// 阻塞等待结果
 				.block();
 
+			// 验证工具回调，确保没有重复的工具名称
 			validateToolCallbacks(toolCallbacks);
 
 			toolCallbackList.addAll(List.of(toolCallbacks));

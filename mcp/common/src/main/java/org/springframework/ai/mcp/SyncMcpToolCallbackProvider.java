@@ -29,16 +29,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Implementation of {@link ToolCallbackProvider} that discovers and provides MCP tools
- * from one or more MCP servers.
+ * {@link ToolCallbackProvider} 的实现，用于从一个或多个 MCP 服务器发现并提供工具。
  * <p>
- * This class acts as a tool provider for Spring AI, automatically discovering tools from
- * multiple MCP servers and making them available as Spring AI tools. It:
+ * 该类作为 Spring AI 的工具提供者，能够自动从多个 MCP 服务器发现工具，并将其注册为 Spring AI 工具。其主要功能包括：
  * <ul>
- * <li>Connects to one or more MCP servers through sync clients</li>
- * <li>Lists and retrieves available tools from all connected servers</li>
- * <li>Creates {@link SyncMcpToolCallback} instances for each discovered tool</li>
- * <li>Validates tool names to prevent duplicates across all servers</li>
+ * <li>通过同步客户端连接到一个或多个MCP服务器</li>
+ * <li>列出并检索所有连接服务器上的可用工具</li>
+ * <li>为每个发现的工具创建{@link SyncMcpToolCallback}实例</li>
+ * <li>验证工具名称以防止在所有服务器上重复</li>
  * </ul>
  * <p>
  * Example usage with a single client:
@@ -70,8 +68,14 @@ import org.springframework.util.CollectionUtils;
 
 public class SyncMcpToolCallbackProvider implements ToolCallbackProvider {
 
+	/**
+	 * 用于发现工具的MCP客户端列表
+	 */
 	private final List<McpSyncClient> mcpClients;
 
+	/**
+	 * 应用于发现工具的过滤器
+	 */
 	private final BiPredicate<McpSyncClient, Tool> toolFilter;
 
 	/**
@@ -116,27 +120,35 @@ public class SyncMcpToolCallbackProvider implements ToolCallbackProvider {
 	}
 
 	/**
-	 * Discovers and returns all available tools from all connected MCP servers.
+	 * 从所有连接的MCP服务器发现并返回所有可用的工具。
 	 * <p>
-	 * This method:
+	 * 该方法：
 	 * <ol>
-	 * <li>Retrieves the list of tools from each connected MCP server</li>
-	 * <li>Creates a {@link SyncMcpToolCallback} for each discovered tool</li>
-	 * <li>Validates that there are no duplicate tool names across all servers</li>
+	 * <li>从每个连接的MCP服务器获取工具列表</li>
+	 * <li>为每个发现的工具创建一个{@link SyncMcpToolCallback}</li>
+	 * <li>验证所有服务器中没有重复的工具名称</li>
 	 * </ol>
-	 * @return an array of tool callbacks, one for each discovered tool
-	 * @throws IllegalStateException if duplicate tool names are found
+	 * @return 包含每个发现工具的工具回调数组
+	 * @throws IllegalStateException 如果发现重复的工具名称
 	 */
 	@Override
 	public ToolCallback[] getToolCallbacks() {
+		// 使用流操作从所有MCP客户端中获取工具
 		var array = this.mcpClients.stream()
 			.flatMap(mcpClient -> mcpClient.listTools()
 				.tools()
 				.stream()
+				// 过滤工具，仅保留通过工具过滤器的工具
 				.filter(tool -> this.toolFilter.test(mcpClient, tool))
+				// 为每个工具创建一个SyncMcpToolCallback实例
 				.map(tool -> new SyncMcpToolCallback(mcpClient, tool)))
+			// 将流转换为ToolCallback数组
 			.toArray(ToolCallback[]::new);
+		
+		// 验证工具回调，确保没有重复的工具名称
 		validateToolCallbacks(array);
+		
+		// 返回工具回调数组
 		return array;
 	}
 
@@ -157,24 +169,25 @@ public class SyncMcpToolCallbackProvider implements ToolCallbackProvider {
 	}
 
 	/**
-	 * Creates a consolidated list of tool callbacks from multiple MCP clients.
+	 * 从多个MCP客户端创建工具回调的综合列表。
 	 * <p>
-	 * This utility method provides a convenient way to create tool callbacks from
-	 * multiple MCP clients in a single operation. It:
+	 * 这个工具方法提供了一种方便的方式来从多个MCP客户端一次性创建工具回调。它：
 	 * <ol>
-	 * <li>Takes a list of MCP clients as input</li>
-	 * <li>Creates a provider instance to manage all clients</li>
-	 * <li>Retrieves tools from all clients and combines them into a single list</li>
-	 * <li>Ensures there are no naming conflicts between tools from different clients</li>
+	 * <li>接收一个MCP客户端列表作为输入</li>
+	 * <li>创建一个实例来管理所有客户端</li>
+	 * <li>从所有客户端检索工具并将其合并到一个列表中</li>
+	 * <li>确保不同客户端之间的工具名称没有冲突</li>
 	 * </ol>
-	 * @param mcpClients the list of MCP clients to create callbacks from
-	 * @return a list of tool callbacks from all provided clients
+	 * @param mcpClients 要从中创建回调的MCP客户端列表
+	 * @return 所有提供的客户端的工具回调列表
 	 */
 	public static List<ToolCallback> syncToolCallbacks(List<McpSyncClient> mcpClients) {
 
 		if (CollectionUtils.isEmpty(mcpClients)) {
 			return List.of();
 		}
+		// 创建一个SyncMcpToolCallbackProvider实例来管理所有MCP客户端
+		// 调用getToolCallbacks方法获取所有工具回调
 		return List.of((new SyncMcpToolCallbackProvider(mcpClients).getToolCallbacks()));
 	}
 

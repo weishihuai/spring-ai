@@ -19,11 +19,10 @@ package org.springframework.ai.mcp.client.autoconfigure;
 import io.modelcontextprotocol.spec.McpClientTransport;
 
 /**
- * A named MCP client transport. Usually created by the transport auto-configurations, but
- * you can also create them manually.
+ * 一个命名的MCP客户端传输。通常由传输自动配置创建，但也可以手动创建它们。
  *
- * @param name the name of the transport. Usually the name of the server connection.
- * @param transport the MCP client transport.
+ * @param name 传输的名称。通常是服务器连接的名称。
+ * @param transport MCP客户端传输。
  * @author Christian Tzolov
  * @since 1.0.0
  */

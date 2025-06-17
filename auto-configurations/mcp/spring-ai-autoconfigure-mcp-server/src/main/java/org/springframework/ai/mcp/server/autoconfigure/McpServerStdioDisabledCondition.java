@@ -20,11 +20,11 @@ import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * This class defines a condition met when the MCP server is enabled and the STDIO
- * Transport is disabled.
+ * 判断是否满足启用 MCP 服务器且禁用 stdio 的条件。
+ * 所有内部嵌套条件类需同时满足。
  *
- * @since 1.0.0
  * @author YunKui Lu
+ * @since 1.0.0
  */
 public class McpServerStdioDisabledCondition extends AllNestedConditions {
 
@@ -32,12 +32,14 @@ public class McpServerStdioDisabledCondition extends AllNestedConditions {
 		super(ConfigurationPhase.PARSE_CONFIGURATION);
 	}
 
+	// 检查配置项 spring.ai.mcp.server.enabled 是否为 true（默认匹配）。
 	@ConditionalOnProperty(prefix = McpServerProperties.CONFIG_PREFIX, name = "enabled", havingValue = "true",
 			matchIfMissing = true)
 	static class McpServerEnabledCondition {
 
 	}
 
+	// 检查配置项 spring.ai.mcp.server.stdio 是否为 false（默认匹配）。
 	@ConditionalOnProperty(prefix = McpServerProperties.CONFIG_PREFIX, name = "stdio", havingValue = "false",
 			matchIfMissing = true)
 	static class StdioDisabledCondition {

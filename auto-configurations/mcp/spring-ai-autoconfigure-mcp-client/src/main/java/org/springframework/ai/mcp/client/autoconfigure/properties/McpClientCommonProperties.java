@@ -21,8 +21,7 @@ import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Common Configuration properties for the Model Context Protocol (MCP) clients shared for
- * all transport types.
+ * 适用于所有传输类型的模型上下文协议（MCP）客户端的公共配置属性。
  *
  * @author Christian Tzolov
  * @author Yangki Zhang
@@ -34,78 +33,78 @@ public class McpClientCommonProperties {
 	public static final String CONFIG_PREFIX = "spring.ai.mcp.client";
 
 	/**
-	 * Enable/disable the MCP client.
+	 * 启用/禁用 MCP 客户端。
 	 * <p>
-	 * When set to false, the MCP client and all its components will not be initialized.
+	 * 当设置为 false 时，MCP 客户端及其所有组件将不会被初始化。
 	 */
 	private boolean enabled = true;
 
 	/**
-	 * The name of the MCP client instance.
+	 * MCP 客户端实例的名称。
 	 * <p>
-	 * This name is reported to clients and used for compatibility checks.
+	 * 该名称会被报告给客户端，并用于兼容性检查。
 	 */
 	private String name = "spring-ai-mcp-client";
 
 	/**
-	 * The version of the MCP client instance.
+	 * MCP 客户端实例的版本。
 	 * <p>
-	 * This version is reported to clients and used for compatibility checks.
+	 * 该版本会被报告给客户端，并用于兼容性检查。
 	 */
 	private String version = "1.0.0";
 
 	/**
-	 * Flag to indicate if the MCP client has to be initialized.
+	 * 指示是否需要初始化 MCP 客户端。
 	 */
 	private boolean initialized = true;
 
 	/**
-	 * The timeout duration for MCP client requests.
+	 * MCP 客户端请求的超时时间。
 	 * <p>
-	 * Defaults to 20 seconds.
+	 * 默认值为 20 秒。
 	 */
 	private Duration requestTimeout = Duration.ofSeconds(20);
 
 	/**
-	 * The type of client to use for MCP client communication.
+	 * 用于 MCP 客户端通信的客户端类型。
 	 * <p>
-	 * Supported types are:
+	 * 支持的类型包括：
 	 * <ul>
-	 * <li>SYNC - Standard synchronous client (default)</li>
-	 * <li>ASYNC - Asynchronous client</li>
+	 * <li>SYNC - 标准同步客户端（默认）</li>
+	 * <li>ASYNC - 异步客户端</li>
 	 * </ul>
 	 */
 	private ClientType type = ClientType.SYNC;
 
 	/**
-	 * Client types supported by the MCP client.
+	 * MCP 客户端支持的客户端类型。
 	 */
 	public enum ClientType {
 
-		/**
-		 * Synchronous (McpSyncClient) client
-		 */
-		SYNC,
+    /**
+     * 同步 (McpSyncClient) 客户端
+     */
+    SYNC,
 
-		/**
-		 * Asynchronous (McpAsyncClient) client
-		 */
-		ASYNC
+    /**
+     * 异步 (McpAsyncClient) 客户端
+     */
+    ASYNC
 
-	}
+}
 
 	/**
-	 * Flag to enable/disable root change notifications.
+	 * 启用/禁用根配置更改通知。
 	 * <p>
-	 * When enabled, the client will be notified of changes to the root configuration.
-	 * Defaults to true.
+	 * 当启用时，客户端将收到根配置更改的通知。
+	 * 默认值为 true。
 	 */
 	private boolean rootChangeNotification = true;
 
 	/**
-	 * Tool callback configuration.
+	 * 工具回调配置。
 	 * <p>
-	 * This configuration is used to enable or disable tool callbacks in the MCP client.
+	 * 该配置用于启用或禁用 MCP 客户端中的工具回调。
 	 */
 	private Toolcallback toolcallback = new Toolcallback();
 
@@ -174,30 +173,25 @@ public class McpClientCommonProperties {
 	}
 
 	/**
-	 * Represents a callback configuration for tools.
-	 * <p>
-	 * This record is used to encapsulate the configuration for enabling or disabling tool
-	 * callbacks in the MCP client.
+	 * 表示工具的回调配置。
 	 *
-	 * @param enabled A boolean flag indicating whether the tool callback is enabled. If
-	 * true, the tool callback is active; otherwise, it is disabled.
+	 * @param enabled 指示工具回调是否启用。如果为 true，则工具回调处于活动状态；否则，它将被禁用。
 	 */
 	public static class Toolcallback {
 
-		/**
-		 * A boolean flag indicating whether the tool callback is enabled. If true, the
-		 * tool callback is active; otherwise, it is disabled.
-		 */
-		private boolean enabled = true;
+    /**
+     * 布尔标志，指示工具回调是否启用。如果为 true，则工具回调处于活动状态；否则，它将被禁用。
+     */
+    private boolean enabled = true;
 
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
-		public boolean isEnabled() {
-			return this.enabled;
-		}
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 
-	}
+}
 
 }

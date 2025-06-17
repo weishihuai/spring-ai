@@ -24,16 +24,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.Assert;
 
 /**
- * Configuration properties for the Model Context Protocol (MCP) server.
+ * Model Context Protocol (MCP) 服务器的配置属性。
  * <p>
- * These properties control the behavior and configuration of the MCP server, including:
+ * 这些属性控制 MCP 服务器的行为和配置，包括：
  * <ul>
- * <li>Server identification (name and version)</li>
- * <li>Change notification settings for tools, resources, and prompts</li>
- * <li>Web transport endpoint configuration</li>
+ * <li>服务器标识（名称和版本）</li>
+ * <li>工具、资源和提示的变化通知设置</li>
+ * <li>Web 传输端点配置</li>
  * </ul>
  * <p>
- * All properties are prefixed with {@code spring.ai.mcp.server}.
+ * 所有属性都以 {@code spring.ai.mcp.server} 为前缀。
  *
  * @author Christian Tzolov
  * @since 1.0.0
@@ -42,289 +42,308 @@ import org.springframework.util.Assert;
 @ConfigurationProperties(McpServerProperties.CONFIG_PREFIX)
 public class McpServerProperties {
 
-	public static final String CONFIG_PREFIX = "spring.ai.mcp.server";
+    public static final String CONFIG_PREFIX = "spring.ai.mcp.server";
 
-	/**
-	 * Enable/disable the MCP server.
-	 * <p>
-	 * When set to false, the MCP server and all its components will not be initialized.
-	 */
-	private boolean enabled = true;
+    /**
+     * 启用/禁用 MCP 服务器。
+     * <p>
+     * 当设置为 false 时，MCP 服务器及其所有组件将不会被初始化。
+     */
+    private boolean enabled = true;
 
-	/**
-	 * Enable/disable the standard input/output (stdio) transport.
-	 * <p>
-	 * When enabled, the server will listen for incoming messages on the standard input
-	 * and write responses to the standard output.
-	 */
-	private boolean stdio = false;
+    /**
+     * 启用/禁用标准输入/输出（stdio）传输。
+     * <p>
+     * 当启用时，服务器将监听标准输入上的传入消息，并将响应写入标准输出。
+     */
+    private boolean stdio = false;
 
-	/**
-	 * The name of the MCP server instance.
-	 * <p>
-	 * This name is used to identify the server in logs and monitoring.
-	 */
-	private String name = "mcp-server";
+    /**
+     * MCP 服务器实例的名称。
+     * <p>
+     * 该名称用于在日志和监控中标识服务器。
+     */
+    private String name = "mcp-server";
 
-	/**
-	 * The version of the MCP server instance.
-	 * <p>
-	 * This version is reported to clients and used for compatibility checks.
-	 */
-	private String version = "1.0.0";
+    /**
+     * MCP 服务器实例的版本。
+     * <p>
+     * 该版本报告给客户端，并用于兼容性检查。
+     */
+    private String version = "1.0.0";
 
-	/**
-	 * The instructions of the MCP server instance.
-	 * <p>
-	 * These instructions are used to provide guidance to the client on how to interact
-	 * with this server.
-	 */
-	private String instructions = null;
+    /**
+     * MCP 服务器实例的说明。
+     * <p>
+     * 这些说明用于向客户端提供如何与该服务器交互的指导。
+     */
+    private String instructions = null;
 
-	/**
-	 * Enable/disable notifications for resource changes. Only relevant for MCP servers
-	 * with resource capabilities.
-	 * <p>
-	 * When enabled, the server will notify clients when resources are added, updated, or
-	 * removed.
-	 */
-	private boolean resourceChangeNotification = true;
+    /**
+     * 启用/禁用资源变化通知。仅对具有资源能力的 MCP 服务器相关。
+     * <p>
+     * 当启用时，服务器将在资源添加、更新或删除时通知客户端。
+     */
+    private boolean resourceChangeNotification = true;
 
-	/**
-	 * Enable/disable notifications for tool changes. Only relevant for MCP servers with
-	 * tool capabilities.
-	 * <p>
-	 * When enabled, the server will notify clients when tools are registered or
-	 * unregistered.
-	 */
-	private boolean toolChangeNotification = true;
+    /**
+     * 启用/禁用工具变化通知。仅对具有工具能力的 MCP 服务器相关。
+     * <p>
+     * 当启用时，服务器将在工具注册或注销时通知客户端。
+     */
+    private boolean toolChangeNotification = true;
 
-	/**
-	 * Enable/disable notifications for prompt changes. Only relevant for MCP servers with
-	 * prompt capabilities.
-	 * <p>
-	 * When enabled, the server will notify clients when prompt templates are modified.
-	 */
-	private boolean promptChangeNotification = true;
+    /**
+     * 启用/禁用提示变化通知。仅对具有提示能力的 MCP 服务器相关。
+     * <p>
+     * 当启用时，服务器将在提示模板修改时通知客户端。
+     */
+    private boolean promptChangeNotification = true;
 
-	/**
-	 */
-	private String baseUrl = "";
+    /**
+     * 基础 URL。
+     */
+    private String baseUrl = "";
 
-	/**
-	 */
-	private String sseEndpoint = "/sse";
+    /**
+     * 使用 Web 传输时的 Server-Sent Events (SSE) 端点路径。
+     * <p>
+     * 该属性仅在传输设置为 WEBMVC 或 WEBFLUX 时使用。
+     */
+    private String sseEndpoint = "/sse";
 
-	/**
-	 * The endpoint path for Server-Sent Events (SSE) when using web transports.
-	 * <p>
-	 * This property is only used when transport is set to WEBMVC or WEBFLUX.
-	 */
-	private String sseMessageEndpoint = "/mcp/message";
+    /**
+     * 使用 Web 传输时的 Server-Sent Events (SSE) 消息端点路径。
+     * <p>
+     * 该属性仅在传输设置为 WEBMVC 或 WEBFLUX 时使用。
+     */
+    private String sseMessageEndpoint = "/mcp/message";
 
-	/**
-	 * The type of server to use for MCP server communication.
-	 * <p>
-	 * Supported types are:
-	 * <ul>
-	 * <li>SYNC - Standard synchronous server (default)</li>
-	 * <li>ASYNC - Asynchronous server</li>
-	 * </ul>
-	 */
-	private ServerType type = ServerType.SYNC;
+    /**
+     * 用于 MCP 服务器通信的服务器类型。
+     * <p>
+     * 支持的类型包括：
+     * <ul>
+     * <li>SYNC - 标准同步服务器（默认）</li>
+     * <li>ASYNC - 异步服务器</li>
+     * </ul>
+     */
+    private ServerType type = ServerType.SYNC;
 
-	private Capabilities capabilities = new Capabilities();
+    private Capabilities capabilities = new Capabilities();
 
-	/**
-	 * Sets the duration to wait for server responses before timing out requests. This
-	 * timeout applies to all requests made through the client, including tool calls,
-	 * resource access, and prompt operations.
-	 */
-	private Duration requestTimeout = Duration.ofSeconds(20);
+    /**
+     * 设置等待服务器响应的超时时间，以超时请求。此超时适用于通过客户端发出的所有请求，包括工具调用、资源访问和提示操作。
+     */
+    private Duration requestTimeout = Duration.ofSeconds(20);
 
-	public Duration getRequestTimeout() {
-		return this.requestTimeout;
-	}
+    public Duration getRequestTimeout() {
+        return this.requestTimeout;
+    }
 
-	public void setRequestTimeout(Duration requestTimeout) {
-		Assert.notNull(requestTimeout, "Request timeout must not be null");
-		this.requestTimeout = requestTimeout;
-	}
+    public void setRequestTimeout(Duration requestTimeout) {
+        Assert.notNull(requestTimeout, "Request timeout must not be null");
+        this.requestTimeout = requestTimeout;
+    }
 
-	public Capabilities getCapabilities() {
-		return this.capabilities;
-	}
+    public Capabilities getCapabilities() {
+        return this.capabilities;
+    }
 
-	/**
-	 * Server types supported by the MCP server.
-	 */
-	public enum ServerType {
+    /**
+     * MCP 服务器支持的服务器类型。
+     */
+    public enum ServerType {
 
-		/**
-		 * Synchronous (McpSyncServer) server
-		 */
-		SYNC,
+        /**
+         * 同步 (McpSyncServer) 服务器
+         */
+        SYNC,
 
-		/**
-		 * Asynchronous (McpAsyncServer) server
-		 */
-		ASYNC
+        /**
+         * 异步 (McpAsyncServer) 服务器
+         */
+        ASYNC
 
-	}
+    }
 
-	/**
-	 * (Optional) response MIME type per tool name.
-	 */
-	private Map<String, String> toolResponseMimeType = new HashMap<>();
+    /**
+     * （可选）每个工具名称的响应 MIME 类型。
+     */
+    private Map<String, String> toolResponseMimeType = new HashMap<>();
 
-	public boolean isStdio() {
-		return this.stdio;
-	}
+    public boolean isStdio() {
+        return this.stdio;
+    }
 
-	public void setStdio(boolean stdio) {
-		this.stdio = stdio;
-	}
+    public void setStdio(boolean stdio) {
+        this.stdio = stdio;
+    }
 
-	public boolean isEnabled() {
-		return this.enabled;
-	}
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public void setName(String name) {
-		Assert.hasText(name, "Name must not be empty");
-		this.name = name;
-	}
+    public void setName(String name) {
+        Assert.hasText(name, "Name must not be empty");
+        this.name = name;
+    }
 
-	public String getVersion() {
-		return this.version;
-	}
+    public String getVersion() {
+        return this.version;
+    }
 
-	public void setVersion(String version) {
-		Assert.hasText(version, "Version must not be empty");
-		this.version = version;
-	}
+    public void setVersion(String version) {
+        Assert.hasText(version, "Version must not be empty");
+        this.version = version;
+    }
 
-	public String getInstructions() {
-		return this.instructions;
-	}
+    public String getInstructions() {
+        return this.instructions;
+    }
 
-	public void setInstructions(String instructions) {
-		this.instructions = instructions;
-	}
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
 
-	public boolean isResourceChangeNotification() {
-		return this.resourceChangeNotification;
-	}
+    public boolean isResourceChangeNotification() {
+        return this.resourceChangeNotification;
+    }
 
-	public void setResourceChangeNotification(boolean resourceChangeNotification) {
-		this.resourceChangeNotification = resourceChangeNotification;
-	}
+    public void setResourceChangeNotification(boolean resourceChangeNotification) {
+        this.resourceChangeNotification = resourceChangeNotification;
+    }
 
-	public boolean isToolChangeNotification() {
-		return this.toolChangeNotification;
-	}
+    public boolean isToolChangeNotification() {
+        return this.toolChangeNotification;
+    }
 
-	public void setToolChangeNotification(boolean toolChangeNotification) {
-		this.toolChangeNotification = toolChangeNotification;
-	}
+    public void setToolChangeNotification(boolean toolChangeNotification) {
+        this.toolChangeNotification = toolChangeNotification;
+    }
 
-	public boolean isPromptChangeNotification() {
-		return this.promptChangeNotification;
-	}
+    public boolean isPromptChangeNotification() {
+        return this.promptChangeNotification;
+    }
 
-	public void setPromptChangeNotification(boolean promptChangeNotification) {
-		this.promptChangeNotification = promptChangeNotification;
-	}
+    public void setPromptChangeNotification(boolean promptChangeNotification) {
+        this.promptChangeNotification = promptChangeNotification;
+    }
 
-	public String getBaseUrl() {
-		return this.baseUrl;
-	}
+    public String getBaseUrl() {
+        return this.baseUrl;
+    }
 
-	public void setBaseUrl(String baseUrl) {
-		Assert.notNull(baseUrl, "Base URL must not be null");
-		this.baseUrl = baseUrl;
-	}
+    public void setBaseUrl(String baseUrl) {
+        Assert.notNull(baseUrl, "Base URL must not be null");
+        this.baseUrl = baseUrl;
+    }
 
-	public String getSseEndpoint() {
-		return this.sseEndpoint;
-	}
+    public String getSseEndpoint() {
+        return this.sseEndpoint;
+    }
 
-	public void setSseEndpoint(String sseEndpoint) {
-		Assert.hasText(sseEndpoint, "SSE endpoint must not be empty");
-		this.sseEndpoint = sseEndpoint;
-	}
+    public void setSseEndpoint(String sseEndpoint) {
+        Assert.hasText(sseEndpoint, "SSE endpoint must not be empty");
+        this.sseEndpoint = sseEndpoint;
+    }
 
-	public String getSseMessageEndpoint() {
-		return this.sseMessageEndpoint;
-	}
+    public String getSseMessageEndpoint() {
+        return this.sseMessageEndpoint;
+    }
 
-	public void setSseMessageEndpoint(String sseMessageEndpoint) {
-		Assert.hasText(sseMessageEndpoint, "SSE message endpoint must not be empty");
-		this.sseMessageEndpoint = sseMessageEndpoint;
-	}
+    public void setSseMessageEndpoint(String sseMessageEndpoint) {
+        Assert.hasText(sseMessageEndpoint, "SSE message endpoint must not be empty");
+        this.sseMessageEndpoint = sseMessageEndpoint;
+    }
 
-	public ServerType getType() {
-		return this.type;
-	}
+    public ServerType getType() {
+        return this.type;
+    }
 
-	public void setType(ServerType serverType) {
-		Assert.notNull(serverType, "Server type must not be null");
-		this.type = serverType;
-	}
+    public void setType(ServerType serverType) {
+        Assert.notNull(serverType, "Server type must not be null");
+        this.type = serverType;
+    }
 
-	public Map<String, String> getToolResponseMimeType() {
-		return this.toolResponseMimeType;
-	}
+    public Map<String, String> getToolResponseMimeType() {
+        return this.toolResponseMimeType;
+    }
 
-	public static class Capabilities {
+    public static class Capabilities {
 
-		private boolean resource = true;
+        private boolean resource = true;
 
-		private boolean tool = true;
+        private boolean tool = true;
 
-		private boolean prompt = true;
+        private boolean prompt = true;
 
-		private boolean completion = true;
+        private boolean completion = true;
 
-		public boolean isResource() {
-			return this.resource;
-		}
+        /**
+         * 是否支持资源。
+         */
+        public boolean isResource() {
+            return this.resource;
+        }
 
-		public void setResource(boolean resource) {
-			this.resource = resource;
-		}
+        /**
+         * 设置是否支持资源。
+         */
+        public void setResource(boolean resource) {
+            this.resource = resource;
+        }
 
-		public boolean isTool() {
-			return this.tool;
-		}
+        /**
+         * 是否支持工具。
+         */
+        public boolean isTool() {
+            return this.tool;
+        }
 
-		public void setTool(boolean tool) {
-			this.tool = tool;
-		}
+        /**
+         * 设置是否支持工具。
+         */
+        public void setTool(boolean tool) {
+            this.tool = tool;
+        }
 
-		public boolean isPrompt() {
-			return this.prompt;
-		}
+        /**
+         * 是否支持提示。
+         */
+        public boolean isPrompt() {
+            return this.prompt;
+        }
 
-		public void setPrompt(boolean prompt) {
-			this.prompt = prompt;
-		}
+        /**
+         * 设置是否支持提示。
+         */
+        public void setPrompt(boolean prompt) {
+            this.prompt = prompt;
+        }
 
-		public boolean isCompletion() {
-			return this.completion;
-		}
+        /**
+         * 是否支持补全。
+         */
+        public boolean isCompletion() {
+            return this.completion;
+        }
 
-		public void setCompletion(boolean completion) {
-			this.completion = completion;
-		}
+        /**
+         * 设置是否支持补全。
+         */
+        public void setCompletion(boolean completion) {
+            this.completion = completion;
+        }
 
-	}
+    }
 
 }

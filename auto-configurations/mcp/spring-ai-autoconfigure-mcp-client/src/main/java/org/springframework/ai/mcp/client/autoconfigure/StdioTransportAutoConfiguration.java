@@ -33,23 +33,31 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto-configuration for Standard Input/Output (stdio) transport in the Model Context
- * Protocol (MCP).
+ * Model Context Protocol (MCP) 的标准输入/输出 (stdio) 传输自动配置。
  *
  * <p>
- * This configuration class sets up the necessary beans for stdio-based transport,
- * enabling communication with MCP servers through standard input and output streams.
+ * 该配置类设置必要的 bean，用于基于 stdio 的传输，通过标准输入和输出流与 MCP 服务器进行通信。
  *
  * <p>
- * Key features:
+ * 主要功能：
  * <ul>
- * <li>Creates stdio transports for configured MCP server connections
- * <li>Supports multiple named server connections with different parameters
- * <li>Configures transport with server-specific parameters
+ * <li>为配置的 MCP 服务器连接创建 stdio 传输
+ * <li>支持具有不同参数的多个命名服务器连接
+ * <li>使用服务器特定的参数配置传输
  * </ul>
  *
  * @see StdioClientTransport
  * @see McpStdioClientProperties
+ */
+/**
+ * 自动配置类，用于启用基于标准输入输出（stdio）的 MCP 客户端传输。
+ *
+ * <p>该配置仅在以下条件下生效：
+ * <ul>
+ * <li>{@link McpSchema} 类存在于类路径中（通过 {@link ConditionalOnClass}）</li>
+ * <li>{@link McpStdioClientProperties} 和 {@link McpClientCommonProperties} 被正确启用并加载为配置属性</li>
+ * <li>在配置文件中启用 MCP 客户端（默认启用，可通过配置项控制）</li>
+ * </ul>
  */
 @AutoConfiguration
 @ConditionalOnClass({ McpSchema.class })
@@ -59,22 +67,24 @@ import org.springframework.context.annotation.Bean;
 public class StdioTransportAutoConfiguration {
 
 	/**
-	 * Creates a list of stdio-based transports for MCP communication.
+	 * 创建一个基于 stdio 的 MCP 通信传输列表。
 	 *
 	 * <p>
-	 * Each transport is configured with:
+	 * 每个传输都配置了：
 	 * <ul>
-	 * <li>Server-specific parameters from properties
-	 * <li>Unique connection name for identification
+	 * <li>来自属性的服务器特定参数
+	 * <li>用于标识的唯一连接名称
 	 * </ul>
-	 * @param stdioProperties the stdio client properties containing server configurations
-	 * @return list of named MCP transports
+	 * 
+	 * @param stdioProperties 包含服务器配置的 stdio 客户端属性
+	 * @return 命名的 MCP 传输列表
 	 */
 	@Bean
 	public List<NamedClientMcpTransport> stdioTransports(McpStdioClientProperties stdioProperties) {
 
 		List<NamedClientMcpTransport> stdioTransports = new ArrayList<>();
 
+		// 遍历 stdioProperties 中的服务器参数，为每个服务器创建一个 StdioClientTransport 实例
 		for (Map.Entry<String, ServerParameters> serverParameters : stdioProperties.toServerParameters().entrySet()) {
 			var transport = new StdioClientTransport(serverParameters.getValue());
 			stdioTransports.add(new NamedClientMcpTransport(serverParameters.getKey(), transport));

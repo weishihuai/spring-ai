@@ -14,6 +14,7 @@ spring:
 
     mcp:
       client:
+        type: ASYNC
         toolcallback:
           enabled: true
         sse:

@@ -35,21 +35,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * Auto-configuration for WebFlux-based Server-Sent Events (SSE) client transport in the
- * Model Context Protocol (MCP).
+ * WebFlux 基础的服务器发送事件 (SSE) 客户端传输的自动配置类。
  *
  * <p>
- * This configuration class sets up the necessary beans for SSE-based WebFlux transport,
- * providing reactive transport implementation for MCP client communication when WebFlux
- * is available on the classpath.
+ * 该配置类设置了 SSE 基础的 WebFlux 传输所需的 Bean，当 WebFlux 在类路径上可用时，
+ * 提供 MCP 客户端通信的响应式传输实现。
  *
  * <p>
- * Key features:
+ * 主要功能：
  * <ul>
- * <li>Creates WebFlux-based SSE transports for configured MCP server connections
- * <li>Configures WebClient.Builder for HTTP client operations
- * <li>Sets up ObjectMapper for JSON serialization/deserialization
- * <li>Supports multiple named server connections with different base URLs
+ * <li>为配置的 MCP 服务器连接创建 WebFlux 基础的 SSE 传输
+ * <li>配置 WebClient.Builder 用于 HTTP 客户端操作
+ * <li>设置 ObjectMapper 用于 JSON 序列化/反序列化
+ * <li>支持具有不同基础 URL 的多个命名服务器连接
  * </ul>
  *
  * @see WebFluxSseClientTransport
@@ -63,20 +61,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class SseWebFluxTransportAutoConfiguration {
 
 	/**
-	 * Creates a list of WebFlux-based SSE transports for MCP communication.
+	 * 创建一个 WebFlux 基础的 SSE 传输列表用于 MCP 通信。
 	 *
 	 * <p>
-	 * Each transport is configured with:
+	 * 每个传输都配置了：
 	 * <ul>
-	 * <li>A cloned WebClient.Builder with server-specific base URL
-	 * <li>ObjectMapper for JSON processing
-	 * <li>Server connection parameters from properties
+	 * <li>具有服务器特定基础 URL 的克隆 WebClient.Builder
+	 * <li>用于 JSON 处理的 ObjectMapper
+	 * <li>来自属性的服务器连接参数
 	 * </ul>
-	 * @param sseProperties the SSE client properties containing server configurations
-	 * @param webClientBuilderProvider the provider for WebClient.Builder
-	 * @param objectMapperProvider the provider for ObjectMapper or a new instance if not
-	 * available
-	 * @return list of named MCP transports
+	 *
+	 * @param sseProperties 包含服务器配置的 SSE 客户端属性
+	 * @param webClientBuilderProvider WebClient.Builder 的提供者
+	 * @param objectMapperProvider ObjectMapper 的提供者，如果不可用则创建新实例
+	 * @return 命名的 MCP 传输列表
 	 */
 	@Bean
 	public List<NamedClientMcpTransport> webFluxClientTransports(McpSseClientProperties sseProperties,
@@ -85,13 +83,19 @@ public class SseWebFluxTransportAutoConfiguration {
 
 		List<NamedClientMcpTransport> sseTransports = new ArrayList<>();
 
+		// 获取 WebClient.Builder 提供者，如果不可用则使用默认的 WebClient.builder()
 		var webClientBuilderTemplate = webClientBuilderProvider.getIfAvailable(WebClient::builder);
+		// 获取 ObjectMapper 提供者，如果不可用则创建新实例
 		var objectMapper = objectMapperProvider.getIfAvailable(ObjectMapper::new);
 
+		// 遍历配置的服务器连接参数，为每个连接创建一个 WebFlux 基础的 SSE 传输
 		for (Map.Entry<String, SseParameters> serverParameters : sseProperties.getConnections().entrySet()) {
+			// 克隆 WebClient.Builder 并设置服务器的基础 URL
 			var webClientBuilder = webClientBuilderTemplate.clone().baseUrl(serverParameters.getValue().url());
+			// 获取 SSE 端点路径，如果未配置则使用默认值 "/sse"
 			String sseEndpoint = serverParameters.getValue().sseEndpoint() != null
 					? serverParameters.getValue().sseEndpoint() : "/sse";
+			// 构建 WebFlux 基础的 SSE 传输
 			var transport = WebFluxSseClientTransport.builder(webClientBuilder)
 				.sseEndpoint(sseEndpoint)
 				.objectMapper(objectMapper)

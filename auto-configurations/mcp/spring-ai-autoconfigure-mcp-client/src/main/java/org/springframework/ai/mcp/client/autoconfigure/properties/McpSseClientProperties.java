@@ -22,14 +22,14 @@ import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Configuration properties for Server-Sent Events (SSE) based MCP client connections.
+ * 配置基于服务器发送事件（SSE）的MCP客户端连接的属性。
  *
  * <p>
- * These properties allow configuration of multiple named SSE connections to MCP servers.
- * Each connection is configured with a URL endpoint for SSE communication.
+ * 这些属性允许配置多个命名的SSE连接到MCP服务器。
+ * 每个连接都配置了一个用于SSE通信的URL端点。
  *
  * <p>
- * Example configuration: <pre>
+ * 示例配置：<pre>
  * spring.ai.mcp.client.sse:
  *   connections:
  *     server1:
@@ -45,31 +45,30 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(McpSseClientProperties.CONFIG_PREFIX)
 public class McpSseClientProperties {
 
-	public static final String CONFIG_PREFIX = "spring.ai.mcp.client.sse";
+    public static final String CONFIG_PREFIX = "spring.ai.mcp.client.sse";
 
-	/**
-	 * Map of named SSE connection configurations.
-	 * <p>
-	 * The key represents the connection name, and the value contains the SSE parameters
-	 * for that connection.
-	 */
-	private final Map<String, SseParameters> connections = new HashMap<>();
+    /**
+     * 命名的SSE连接配置映射。
+     * <p>
+     * 键表示连接名称，值包含该连接的SSE参数。
+     */
+    private final Map<String, SseParameters> connections = new HashMap<>();
 
-	/**
-	 * Returns the map of configured SSE connections.
-	 * @return map of connection names to their SSE parameters
-	 */
-	public Map<String, SseParameters> getConnections() {
-		return this.connections;
-	}
+    /**
+     * 返回配置的SSE连接映射。
+     * @return 连接名称到其SSE参数的映射
+     */
+    public Map<String, SseParameters> getConnections() {
+        return this.connections;
+    }
 
-	/**
-	 * Parameters for configuring an SSE connection to an MCP server.
-	 *
-	 * @param url the URL endpoint for SSE communication with the MCP server
-	 * @param sseEndpoint the SSE endpoint for the MCP server
-	 */
-	public record SseParameters(String url, String sseEndpoint) {
-	}
+    /**
+     * 配置到MCP服务器的SSE连接的参数。
+     *
+     * @param url 与MCP服务器进行SSE通信的URL端点
+     * @param sseEndpoint MCP服务器的SSE端点
+     */
+    public record SseParameters(String url, String sseEndpoint) {
+    }
 
 }
