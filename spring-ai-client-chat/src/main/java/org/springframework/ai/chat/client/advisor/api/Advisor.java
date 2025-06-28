@@ -19,28 +19,27 @@ package org.springframework.ai.chat.client.advisor.api;
 import org.springframework.core.Ordered;
 
 /**
- * Parent advisor interface for all advisors.
+ * 所有Advisor的父接口。
  *
  * @author Christian Tzolov
  * @author Dariusz Jedrzejczyk
- * @since 1.0.0
  * @see CallAdvisor
  * @see StreamAdvisor
  * @see BaseAdvisor
+ * @since 1.0.0
  */
 public interface Advisor extends Ordered {
 
 	/**
-	 * Useful constant for the default Chat Memory precedence order. Ensures this order
-	 * has lower priority (e.g. precedences) than the Spring AI internal advisors. It
-	 * leaves room (1000 slots) for the user to plug in their own advisors with higher
-	 * priority.
+	 * 默认聊天记忆优先级的常量。确保此顺序比 Spring AI 内部Advisor的优先级低（例如，优先级）。
+	 * 它为用户提供了插入具有更高优先级的自己的Advisor的空间（1000个插槽）。
 	 */
 	int DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER = Ordered.HIGHEST_PRECEDENCE + 1000;
 
 	/**
-	 * Return the name of the advisor.
-	 * @return the advisor name.
+	 * 返回Advisor的名称。
+	 *
+	 * @return Advisor名称。
 	 */
 	String getName();
 

@@ -19,8 +19,7 @@ package org.springframework.ai.chat.client.advisor.api;
 import io.micrometer.observation.ObservationRegistry;
 
 /**
- * Defines the context for executing a chain of advisors as part of processing a chat
- * request.
+ * 定义执行Advisor链的上下文，作为处理聊天请求的一部分.
  *
  * @author Thomas Vitale
  * @since 1.0.0

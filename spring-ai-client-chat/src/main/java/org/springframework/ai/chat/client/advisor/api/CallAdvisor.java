@@ -20,7 +20,7 @@ import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 
 /**
- * Advisor for execution flows ultimately resulting in a call to an AI model
+ * 执行流的Advisor最终导致对AI模型的调用
  *
  * @author Christian Tzolov
  * @author Dariusz Jedrzejczyk

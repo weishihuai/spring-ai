@@ -904,6 +904,9 @@ public class DefaultChatClient implements ChatClient {
 		}
 
 		public CallResponseSpec call() {
+			// 默认创建DefaultAroundAdvisorChain, 默认添加如下两个Advisor:
+			// 1. ChatModelCallAdvisor: 模型调用
+			// 2. ChatModelStreamAdvisor: 模型流式响应
 			BaseAdvisorChain advisorChain = buildAdvisorChain();
 			return new DefaultCallResponseSpec(DefaultChatClientUtils.toChatClientRequest(this), advisorChain,
 					this.observationRegistry, this.observationConvention);

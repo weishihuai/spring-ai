@@ -34,14 +34,22 @@ import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.lang.Nullable;
 
 /**
- * A simple logger advisor that logs the request and response messages.
+ * 简单的日志记录Advisor，控制台打印请求和响应消息。
  *
  * @author Christian Tzolov
  */
 public class SimpleLoggerAdvisor implements CallAdvisor, StreamAdvisor {
 
+	/**
+	 * 默认请求打印函数：调用 toString() 方法将请求转换为字符串。
+	 * 初始化时支持自定义。
+	 */
 	public static final Function<ChatClientRequest, String> DEFAULT_REQUEST_TO_STRING = ChatClientRequest::toString;
 
+	/**
+	 * 默认响应打印函数：以美观格式打印 JSON 响应。
+	 * 初始化时支持自定义。
+	 */
 	public static final Function<ChatResponse, String> DEFAULT_RESPONSE_TO_STRING = ModelOptionsUtils::toJsonStringPrettyPrinter;
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleLoggerAdvisor.class);
@@ -69,10 +77,13 @@ public class SimpleLoggerAdvisor implements CallAdvisor, StreamAdvisor {
 
 	@Override
 	public ChatClientResponse adviseCall(ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {
+		// 打印请求内容
 		logRequest(chatClientRequest);
 
+		// 发起LLM调用
 		ChatClientResponse chatClientResponse = callAdvisorChain.nextCall(chatClientRequest);
 
+		// 打印响应内容
 		logResponse(chatClientResponse);
 
 		return chatClientResponse;

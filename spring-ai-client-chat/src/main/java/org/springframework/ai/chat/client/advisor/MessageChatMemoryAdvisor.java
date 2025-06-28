@@ -37,7 +37,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.util.Assert;
 
 /**
- * Memory is retrieved added as a collection of messages to the prompt
+ * 检索到的内存作为消息集合添加到提示词中
  *
  * @author Christian Tzolov
  * @author Mark Pollack
@@ -79,19 +79,19 @@ public final class MessageChatMemoryAdvisor implements BaseChatMemoryAdvisor {
 	public ChatClientRequest before(ChatClientRequest chatClientRequest, AdvisorChain advisorChain) {
 		String conversationId = getConversationId(chatClientRequest.context(), this.defaultConversationId);
 
-		// 1. Retrieve the chat memory for the current conversation.
+		// 1. 检索当前会话的聊天内存
 		List<Message> memoryMessages = this.chatMemory.get(conversationId);
 
-		// 2. Advise the request messages list.
+		// 2. 通知请求消息列表。
 		List<Message> processedMessages = new ArrayList<>(memoryMessages);
 		processedMessages.addAll(chatClientRequest.prompt().getInstructions());
 
-		// 3. Create a new request with the advised messages.
+		// 3. 用建议的消息创建一个新请求。
 		ChatClientRequest processedChatClientRequest = chatClientRequest.mutate()
 			.prompt(chatClientRequest.prompt().mutate().messages(processedMessages).build())
 			.build();
 
-		// 4. Add the new user message to the conversation memory.
+		// 4. 将新用户消息添加到会话内存中。
 		UserMessage userMessage = processedChatClientRequest.prompt().getUserMessage();
 		this.chatMemory.add(conversationId, userMessage);
 

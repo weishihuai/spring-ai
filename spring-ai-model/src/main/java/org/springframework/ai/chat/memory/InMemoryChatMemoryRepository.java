@@ -16,22 +16,27 @@
 
 package org.springframework.ai.chat.memory;
 
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.util.Assert;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.util.Assert;
-
 /**
- * An in-memory implementation of {@link ChatMemoryRepository}.
+ * {@link ChatMemoryRepository}的内存实现。
  *
  * @author Thomas Vitale
  * @since 1.0.0
  */
 public final class InMemoryChatMemoryRepository implements ChatMemoryRepository {
 
+	/**
+	 * 使用Map保存会话记忆
+	 * key: 会话ID
+	 * value: 会话记忆
+	 */
 	Map<String, List<Message>> chatMemoryStore = new ConcurrentHashMap<>();
 
 	@Override

@@ -1,0 +1,20 @@
+server:
+  port: 1019
+spring:
+  application:
+    name: spring-ai-advisor-examples
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: https://api.deepseek.com
+      chat:
+        enabled: true
+        options:
+          model: deepseek-chat
+
+# 开启日志输出
+logging:
+  level:
+    org.springframework.ai: DEBUG
+
+

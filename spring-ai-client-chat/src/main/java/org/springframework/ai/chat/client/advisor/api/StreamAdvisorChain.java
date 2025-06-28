@@ -24,8 +24,8 @@ import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 
 /**
- * A chain of {@link StreamAdvisor} instances orchestrating the execution of a
- * {@link ChatClientRequest} on the next {@link StreamAdvisor} in the chain.
+ * 一组 {@link StreamAdvisor} 实例的链，用于协调下一个 {@link StreamAdvisor} 对
+ * {@link ChatClientRequest} 的执行。
  *
  * @author Christian Tzolov
  * @author Dariusz Jedrzejczyk
@@ -35,14 +35,12 @@ import org.springframework.ai.chat.client.ChatClientResponse;
 public interface StreamAdvisorChain extends AdvisorChain {
 
 	/**
-	 * Invokes the next {@link StreamAdvisor} in the {@link StreamAdvisorChain} with the
-	 * given request.
+	 * 使用给定的请求调用 {@link StreamAdvisorChain} 中的下一个 {@link StreamAdvisor}。
 	 */
 	Flux<ChatClientResponse> nextStream(ChatClientRequest chatClientRequest);
 
 	/**
-	 * Returns the list of all the {@link StreamAdvisor} instances included in this chain
-	 * at the time of its creation.
+	 * 返回创建时此链中包含的所有 {@link StreamAdvisor} 实例的列表。
 	 */
 	List<StreamAdvisor> getStreamAdvisors();
 

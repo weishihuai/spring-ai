@@ -27,14 +27,13 @@ import org.springframework.ai.chat.client.advisor.AdvisorUtils;
 import org.springframework.util.Assert;
 
 /**
- * Base advisor that implements common aspects of the {@link CallAdvisor} and
- * {@link StreamAdvisor}, reducing the boilerplate code needed to implement an advisor.
+ * 实现 {@link CallAdvisor} 和 {@link StreamAdvisor} 公共功能的基础Advisor类，
+ * 减少实现Advisor所需的样板代码。
  * <p>
- * It provides default implementations for the
- * {@link #adviseCall(ChatClientRequest, CallAdvisorChain)} and
- * {@link #adviseStream(ChatClientRequest, StreamAdvisorChain)} methods, delegating the
- * actual logic to the {@link #before(ChatClientRequest, AdvisorChain advisorChain)} and
- * {@link #after(ChatClientResponse, AdvisorChain advisorChain)} methods.
+ * 它为 {@link #adviseCall(ChatClientRequest, CallAdvisorChain)} 和
+ * {@link #adviseStream(ChatClientRequest, StreamAdvisorChain)} 方法提供了默认实现，
+ * 将实际逻辑委托给 {@link #before(ChatClientRequest, AdvisorChain advisorChain)} 和
+ * {@link #after(ChatClientResponse, AdvisorChain advisorChain)} 方法。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -79,17 +78,17 @@ public interface BaseAdvisor extends CallAdvisor, StreamAdvisor {
 	}
 
 	/**
-	 * Logic to be executed before the rest of the advisor chain is called.
+	 * 在调用其余的Advisor链之前执行的逻辑。
 	 */
 	ChatClientRequest before(ChatClientRequest chatClientRequest, AdvisorChain advisorChain);
 
 	/**
-	 * Logic to be executed after the rest of the advisor chain is called.
+	 * 在调用其余的Advisor链之后执行的逻辑。
 	 */
 	ChatClientResponse after(ChatClientResponse chatClientResponse, AdvisorChain advisorChain);
 
 	/**
-	 * Scheduler used for processing the advisor logic when streaming.
+	 * 流式处理时用于处理Advisor逻辑的调度器。
 	 */
 	default Scheduler getScheduler() {
 		return DEFAULT_SCHEDULER;

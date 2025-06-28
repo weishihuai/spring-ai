@@ -22,7 +22,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.util.Assert;
 
 /**
- * Base interface for chat memory advisors.
+ * 聊天内存Advisor的基本接口。
  *
  * @author Mark Pollack
  * @author Thomas Vitale
@@ -31,13 +31,13 @@ import org.springframework.util.Assert;
 public interface BaseChatMemoryAdvisor extends BaseAdvisor {
 
 	/**
-	 * Retrieve the conversation ID from the given context or return the default
-	 * conversation ID when not found.
+	 * 从给定的上下文中检索会话ID，或者在未找到时返回默认会话ID。
 	 */
 	default String getConversationId(Map<String, Object> context, String defaultConversationId) {
 		Assert.notNull(context, "context cannot be null");
 		Assert.noNullElements(context.keySet().toArray(), "context cannot contain null keys");
 		Assert.hasText(defaultConversationId, "defaultConversationId cannot be null or empty");
+		// ChatMemory.CONVERSATION_ID：chat_memory_conversation_id
 		return context.containsKey(ChatMemory.CONVERSATION_ID) ? context.get(ChatMemory.CONVERSATION_ID).toString()
 				: defaultConversationId;
 	}

@@ -17,8 +17,7 @@
 package org.springframework.ai.chat.client.advisor.api;
 
 /**
- * A base interface for advisor chains that can be used to chain multiple advisors
- * together, both for call and stream advisors.
+ * Advisor链的基本接口，可用于将多个Advisor链在一起，用于callAdvisor和streamAdvisor。
  *
  * @author Thomas Vitale
  * @since 1.0.0

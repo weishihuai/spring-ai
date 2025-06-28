@@ -210,7 +210,8 @@
 		<module>mcp/common</module>
 		<module>spring-ai-tool-calling-example</module>
         <module>spring-ai-mcp-examples</module>
-	</modules>
+        <module>spring-ai-advisor-examples</module>
+    </modules>
 
 	<organization>
 		<name>VMware Inc.</name>

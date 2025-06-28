@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * A {@link CallAdvisor} that uses a {@link ChatModel} to generate a response.
+ * 一个{@link CallAdvisor}，它使用{@link ChatModel}来生成响应。
  *
  * @author Thomas Vitale
  * @since 1.0.0
@@ -49,7 +49,7 @@ public final class ChatModelCallAdvisor implements CallAdvisor {
 	public ChatClientResponse adviseCall(ChatClientRequest chatClientRequest, CallAdvisorChain callAdvisorChain) {
 		Assert.notNull(chatClientRequest, "the chatClientRequest cannot be null");
 
-		// 将指定的输出格式要求附加到用户消息中
+		// 增加输出格式要求：将指定的输出格式要求附加到用户消息中
 		ChatClientRequest formattedChatClientRequest = augmentWithFormatInstructions(chatClientRequest);
 
 		// 调用对应的聊天模型，如DeepSeekChatModel.call
@@ -85,6 +85,7 @@ public final class ChatModelCallAdvisor implements CallAdvisor {
 
 	@Override
 	public int getOrder() {
+		// 优先级最低
 		return Ordered.LOWEST_PRECEDENCE;
 	}
 
