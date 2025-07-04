@@ -16,14 +16,6 @@
 
 package org.springframework.ai.chat.client.advisor.vectorstore;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
-
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.AdvisorChain;
@@ -39,10 +31,16 @@ import org.springframework.ai.vectorstore.filter.FilterExpressionTextParser;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Context for the question is retrieved from a Vector Store and added to the prompt's
- * user text.
+ * 从向量数据库中检索相关问题，然后作为上下文，添加到提示词中。
  *
  * @author Christian Tzolov
  * @author Timo Salm
@@ -56,6 +54,11 @@ public class QuestionAnswerAdvisor implements BaseAdvisor {
 
 	public static final String FILTER_EXPRESSION = "qa_filter_expression";
 
+	/**
+	 * 默认提示词模板，也可以手动指定
+	 * query: 用户提问
+	 * question_answer_context: 相关文档
+	 */
 	private static final PromptTemplate DEFAULT_PROMPT_TEMPLATE = new PromptTemplate("""
 			{query}
 
@@ -88,7 +91,7 @@ public class QuestionAnswerAdvisor implements BaseAdvisor {
 	}
 
 	QuestionAnswerAdvisor(VectorStore vectorStore, SearchRequest searchRequest, @Nullable PromptTemplate promptTemplate,
-			@Nullable Scheduler scheduler, int order) {
+						  @Nullable Scheduler scheduler, int order) {
 		Assert.notNull(vectorStore, "vectorStore cannot be null");
 		Assert.notNull(searchRequest, "searchRequest cannot be null");
 
@@ -110,31 +113,31 @@ public class QuestionAnswerAdvisor implements BaseAdvisor {
 
 	@Override
 	public ChatClientRequest before(ChatClientRequest chatClientRequest, AdvisorChain advisorChain) {
-		// 1. Search for similar documents in the vector store.
+		// 1. 组装查询，从向量数据库中查询相似性文档
 		var searchRequestToUse = SearchRequest.from(this.searchRequest)
-			.query(chatClientRequest.prompt().getUserMessage().getText())
-			.filterExpression(doGetFilterExpression(chatClientRequest.context()))
-			.build();
+				.query(chatClientRequest.prompt().getUserMessage().getText())
+				.filterExpression(doGetFilterExpression(chatClientRequest.context()))
+				.build();
 
 		List<Document> documents = this.vectorStore.similaritySearch(searchRequestToUse);
 
-		// 2. Create the context from the documents.
+		// 2. 从文档创建上下文。
 		Map<String, Object> context = new HashMap<>(chatClientRequest.context());
 		context.put(RETRIEVED_DOCUMENTS, documents);
 
 		String documentContext = documents == null ? ""
 				: documents.stream().map(Document::getText).collect(Collectors.joining(System.lineSeparator()));
 
-		// 3. Augment the user prompt with the document context.
+		// 3. 根据用户提问，相似性文档，组装新的提示词
 		UserMessage userMessage = chatClientRequest.prompt().getUserMessage();
 		String augmentedUserText = this.promptTemplate
-			.render(Map.of("query", userMessage.getText(), "question_answer_context", documentContext));
+				.render(Map.of("query", userMessage.getText(), "question_answer_context", documentContext));
 
-		// 4. Update ChatClientRequest with augmented prompt.
+		// 4. 用增强的提示词，更新LLM请求
 		return chatClientRequest.mutate()
-			.prompt(chatClientRequest.prompt().augmentUserMessage(augmentedUserText))
-			.context(context)
-			.build();
+				.prompt(chatClientRequest.prompt().augmentUserMessage(augmentedUserText))
+				.context(context)
+				.build();
 	}
 
 	@Override
@@ -142,15 +145,14 @@ public class QuestionAnswerAdvisor implements BaseAdvisor {
 		ChatResponse.Builder chatResponseBuilder;
 		if (chatClientResponse.chatResponse() == null) {
 			chatResponseBuilder = ChatResponse.builder();
-		}
-		else {
+		} else {
 			chatResponseBuilder = ChatResponse.builder().from(chatClientResponse.chatResponse());
 		}
 		chatResponseBuilder.metadata(RETRIEVED_DOCUMENTS, chatClientResponse.context().get(RETRIEVED_DOCUMENTS));
 		return ChatClientResponse.builder()
-			.chatResponse(chatResponseBuilder.build())
-			.context(chatClientResponse.context())
-			.build();
+				.chatResponse(chatResponseBuilder.build())
+				.context(chatClientResponse.context())
+				.build();
 	}
 
 	@Nullable

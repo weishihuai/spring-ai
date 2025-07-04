@@ -24,10 +24,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * Represents a response returned by a {@link ChatClient}.
+ * 表示{@link ChatClient}返回的响应。
  *
- * @param chatResponse The response returned by the AI model
- * @param context The contextual data propagated through the execution chain
+ * @param chatResponse AI模型返回的响应
+ * @param context 上下文数据，通过执行链传播
  * @author Thomas Vitale
  * @since 1.0.0
  */

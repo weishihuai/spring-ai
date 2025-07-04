@@ -247,8 +247,7 @@ public class Prompt implements ModelRequest<List<Message>> {
 	}
 
 	/**
-	 * Augments the last user message in the prompt with the provided text. If no user
-	 * message is found, a new one is created with the provided text.
+	 * 用提供的文本增加提示符中的最后一个用户消息。如果没有找到用户消息，则使用提供的文本创建一个新的用户消息。
 	 * @return a new {@link Prompt} instance with the augmented user message.
 	 */
 	public Prompt augmentUserMessage(String newUserText) {

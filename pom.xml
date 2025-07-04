@@ -211,7 +211,8 @@
 		<module>spring-ai-tool-calling-example</module>
         <module>spring-ai-mcp-examples</module>
         <module>spring-ai-advisor-examples</module>
-    </modules>
+		<module>spring-ai-rag-examples</module>
+	</modules>
 
 	<organization>
 		<name>VMware Inc.</name>
